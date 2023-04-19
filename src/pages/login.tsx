@@ -1,0 +1,85 @@
+import { FC, useState, useEffect } from 'react'
+import { Sheet, Modal, Typography, Input, Button } from '@mui/joy'
+import { http, setToken } from '../utils/http'
+
+const Login: FC = () => {
+	const [open, setOpen] = useState(false)
+	const [key, setkey] = useState('')
+	useEffect(() => {
+		http
+			.get('/auth/beat')
+			.then(({ status }) => {
+				if (status !== 200) {
+					setOpen(true)
+				}
+			})
+			.catch((reason) => {
+				setOpen(true)
+			})
+	}, [])
+
+	return (
+		<>
+			<Modal
+				open={open}
+				sx={{
+					display: 'flex',
+					alignItems: 'center',
+					justifyContent: 'center',
+					gap: 10,
+				}}
+			>
+				<Sheet
+					variant='outlined'
+					sx={{
+						minWidth: 300,
+						borderRadius: 'md',
+						p: 3,
+						display: 'flex',
+						flexDirection: 'column',
+						gap: 2,
+					}}
+				>
+					<Typography
+						component='h2'
+						id='close-modal-title'
+						level='h4'
+						textColor='inherit'
+						fontWeight='lg'
+					>
+						Input Key
+					</Typography>
+					<Input
+						value={key}
+						onChange={(ev) => {
+							setkey(ev.target.value)
+						}}
+					/>
+					<Button
+						onClick={() => {
+							http
+								.get<{
+									code: number
+									token: string
+								}>('/auth/login', {
+									params: {
+										secret_key: key,
+									},
+								})
+								.then(({ data }) => {
+									if (data.code === 200) {
+										setToken(data.token)
+										setOpen(false)
+									}
+								})
+						}}
+					>
+						Login
+					</Button>
+				</Sheet>
+			</Modal>
+		</>
+	)
+}
+
+export default Login
