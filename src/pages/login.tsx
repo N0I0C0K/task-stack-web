@@ -32,7 +32,6 @@ const Login: FC = () => {
 				<Sheet
 					variant='outlined'
 					sx={{
-						minWidth: 300,
 						borderRadius: 'md',
 						p: 3,
 						display: 'flex',

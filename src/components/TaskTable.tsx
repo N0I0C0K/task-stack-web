@@ -12,6 +12,8 @@ import {
 	FormLabel,
 	Select,
 	Option,
+	Textarea,
+	IconButton,
 } from '@mui/joy'
 import Table from '@mui/joy/Table'
 import {
@@ -24,8 +26,11 @@ import ArrowBackIosIcon from '@mui/icons-material/ArrowBackIos'
 import PlayArrowIcon from '@mui/icons-material/PlayArrow'
 import DeleteIcon from '@mui/icons-material/Delete'
 import ArrowForwardIosIcon from '@mui/icons-material/ArrowForwardIos'
+import { KeyboardArrowLeft, KeyboardArrowRight } from '@mui/icons-material'
 import TaskIcon from '@mui/icons-material/Task'
 import { formatSeconds } from '../utils'
+import { globalModalStore } from './GlobalModal'
+import { getFakeOutput } from '../utils/fake'
 
 const TaskDetail: FC<{
 	task: TaskInter
@@ -80,7 +85,36 @@ const TaskDetail: FC<{
 			<Typography level='h5'>History Session</Typography>
 			{session.map((val) => {
 				return (
-					<Button startDecorator={<TaskIcon />} variant='plain' color='success'>
+					<Button
+						startDecorator={<TaskIcon />}
+						variant='plain'
+						color='success'
+						onClick={() => {
+							globalModalStore.open(
+								<>
+									<Typography level='h3' sx={{ width: '600px' }}>
+										{task.name}
+									</Typography>
+									<Typography level='body1'>{val.command}</Typography>
+									<Typography level='body3'>
+										{formatSeconds(val.invoke_time)}-
+										{formatSeconds(val.finish_time)}
+									</Typography>
+									<Divider />
+									<FormControl>
+										<FormLabel>Output:</FormLabel>
+										<Textarea
+											value={getFakeOutput(100)}
+											minRows={5}
+											maxRows={10}
+											color='success'
+										/>
+									</FormControl>
+								</>,
+								() => {}
+							)
+						}}
+					>
 						{formatSeconds(val.invoke_time)}
 					</Button>
 				)
@@ -93,6 +127,7 @@ export const TaskTable = () => {
 	const [selectTask, setSelectTask] = useState<TaskInter | null>(null)
 	const [tasks, setTasks] = useState<TaskInter[]>([])
 	const [rowNum, setRowNum] = useState(10)
+	const [start, setStart] = useState(0)
 	useEffect(() => {
 		setTasks(getTaskList(30))
 	}, [])
@@ -117,12 +152,45 @@ export const TaskTable = () => {
 				<Stack direction={'row'} gap={2}>
 					<Input placeholder='search...' sx={{}} />
 					<Button>Search</Button>
-					<Button color='info'>New</Button>
+					<Button
+						color='info'
+						onClick={() => {
+							globalModalStore.open(
+								<>
+									<Typography level='h2' sx={{ minWidth: '400px' }}>
+										NEW TASK
+									</Typography>
+
+									<form
+										onSubmit={(event) => {
+											console.log(event)
+											console.log(event.target)
+											event.preventDefault()
+										}}
+									>
+										<FormLabel>task name</FormLabel>
+										<Input name='task_name' />
+										<FormLabel>command</FormLabel>
+										<Input name='command' />
+										<FormLabel>invoke when submit</FormLabel>
+										<Checkbox />
+										<Button type='submit' sx={{ mt: 2 }}>
+											create
+										</Button>
+									</form>
+								</>,
+								() => {}
+							)
+						}}
+					>
+						New
+					</Button>
 				</Stack>
 				<Sheet sx={{ borderRadius: 'sm', boxShadow: 'sm' }} variant='outlined'>
 					<Table hoverRow borderAxis='bothBetween' size='lg'>
 						<thead>
 							<tr>
+								<th style={{ width: '40px' }}>#</th>
 								<th>id</th>
 								<th>name</th>
 								<th>command</th>
@@ -132,14 +200,15 @@ export const TaskTable = () => {
 							</tr>
 						</thead>
 						<tbody>
-							{tasks.slice(0, 0 + rowNum).map((val) => (
+							{tasks.slice(start, start + rowNum).map((val, idx) => (
 								<tr key={val.id}>
+									<td>{start + idx + 1}</td>
 									<td>{val.id}</td>
 									<td>
 										<Input value={val.name} variant='plain' />
 									</td>
 									<td>{val.command}</td>
-									<td>{val.create_time}</td>
+									<td>{formatSeconds(val.create_time)}</td>
 									<td>
 										<Checkbox checked={val.active} variant='outlined' />
 									</td>
@@ -167,7 +236,7 @@ export const TaskTable = () => {
 						</tbody>
 						<tfoot>
 							<tr>
-								<td colSpan={6}>
+								<td colSpan={7}>
 									<Box
 										sx={{
 											display: 'flex',
@@ -188,6 +257,31 @@ export const TaskTable = () => {
 												<Option value={25}>25</Option>
 											</Select>
 										</FormControl>
+										<Typography textAlign='center' sx={{ minWidth: 100 }}>
+											{start + 1}-{start + rowNum} of {tasks.length}
+										</Typography>
+										<Box sx={{ display: 'flex', gap: 1 }}>
+											<IconButton
+												variant='outlined'
+												color='neutral'
+												onClick={() => {
+													setStart(Math.max(0, start - rowNum))
+												}}
+											>
+												<KeyboardArrowLeft />
+											</IconButton>
+											<IconButton
+												variant='outlined'
+												color='neutral'
+												onClick={() => {
+													setStart(
+														Math.min(start + rowNum, tasks.length - rowNum)
+													)
+												}}
+											>
+												<KeyboardArrowRight />
+											</IconButton>
+										</Box>
 									</Box>
 								</td>
 							</tr>

@@ -16,6 +16,7 @@ import ModeToggle from './components/ModeToggle'
 import { FC } from 'react'
 import { TaskTable } from './components/TaskTable'
 import Login from './pages/login'
+import { GlobalModal } from './components/GlobalModal'
 
 const FirstSidbar: FC = () => {
 	return (
@@ -93,6 +94,7 @@ function App() {
 				<FirstSidbar />
 				<TaskTable />
 				{/* <Login /> */}
+				<GlobalModal />
 			</Box>
 		</CssVarsProvider>
 	)
