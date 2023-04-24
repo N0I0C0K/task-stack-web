@@ -16,6 +16,18 @@ export interface SessionInter {
 	finish_time: number
 	task_id: string
 	command: string
+	success: boolean
+	running: boolean
+}
+
+export interface SessionOutputInter {
+	output: string
+}
+
+export const getSessoionOutput = (count: number = 10): SessionOutputInter => {
+	return {
+		output: faker.lorem.sentence(count),
+	}
 }
 
 export const getTaskList = (num: number = 10): TaskInter[] => {
@@ -45,6 +57,8 @@ export const getSessionList = (
 			finish_time: faker.date.past().getTime() / 1000,
 			task_id: task_id,
 			command: 'test fake command',
+			success: faker.datatype.boolean(),
+			running: faker.datatype.boolean(),
 		}
 	})
 }

@@ -31,6 +31,9 @@ import TaskIcon from '@mui/icons-material/Task'
 import { formatSeconds } from '../utils'
 import { globalModalStore } from './GlobalModal'
 import { getFakeOutput } from '../utils/fake'
+import ErrorIcon from '@mui/icons-material/Error'
+
+import CircularProgress from '@mui/joy/CircularProgress'
 
 const TaskDetail: FC<{
 	task: TaskInter
@@ -40,6 +43,8 @@ const TaskDetail: FC<{
 	useEffect(() => {
 		setSession(getSessionList(task.id, 100))
 	}, [task])
+	const [page, setPage] = useState(0)
+	const pagenum = 8
 	return (
 		<Sheet
 			variant='outlined'
@@ -82,43 +87,66 @@ const TaskDetail: FC<{
 				</Button>
 			</Stack>
 			<Divider />
-			<Typography level='h5'>History Session</Typography>
-			{session.map((val) => {
-				return (
-					<Button
-						startDecorator={<TaskIcon />}
-						variant='plain'
-						color='success'
-						onClick={() => {
-							globalModalStore.open(
-								<>
-									<Typography level='h3' sx={{ width: '600px' }}>
-										{task.name}
-									</Typography>
-									<Typography level='body1'>{val.command}</Typography>
-									<Typography level='body3'>
-										{formatSeconds(val.invoke_time)}-
-										{formatSeconds(val.finish_time)}
-									</Typography>
-									<Divider />
-									<FormControl>
-										<FormLabel>Output:</FormLabel>
-										<Textarea
-											value={getFakeOutput(100)}
-											minRows={5}
-											maxRows={10}
-											color='success'
-										/>
-									</FormControl>
-								</>,
-								() => {}
-							)
-						}}
-					>
-						{formatSeconds(val.invoke_time)}
-					</Button>
-				)
-			})}
+			<Stack direction={'row'} gap={2}>
+				<Typography level='h5'>History Session</Typography>
+				<IconButton
+					variant='plain'
+					onClick={() => {
+						setPage(Math.max(page - 1, 0))
+					}}
+				>
+					<KeyboardArrowLeft />
+				</IconButton>
+				<p style={{ alignContent: 'center', lineHeight: '0' }}>
+					{page + 1}/{Math.ceil(session.length / pagenum)}
+				</p>
+				<IconButton
+					variant='plain'
+					onClick={() => {
+						setPage(Math.min(page + 1, Math.floor(session.length / pagenum)))
+					}}
+				>
+					<KeyboardArrowRight />
+				</IconButton>
+			</Stack>
+			{session
+				.slice(page * pagenum, Math.min((page + 1) * pagenum, session.length))
+				.map((val) => {
+					return (
+						<Button
+							startDecorator={val.success ? <TaskIcon /> : <ErrorIcon />}
+							variant='plain'
+							color={val.success ? 'success' : 'danger'}
+							onClick={() => {
+								globalModalStore.open(
+									<>
+										<Typography level='h3' sx={{ width: '600px' }}>
+											{task.name}
+										</Typography>
+										<Typography level='body1'>{val.command}</Typography>
+										<Typography level='body3'>
+											{formatSeconds(val.invoke_time)}-
+											{formatSeconds(val.finish_time)}
+										</Typography>
+										<Divider />
+										<FormControl>
+											<FormLabel>Output:</FormLabel>
+											<Textarea
+												value={getFakeOutput(100)}
+												minRows={5}
+												maxRows={10}
+												color='success'
+											/>
+										</FormControl>
+									</>,
+									() => {}
+								)
+							}}
+						>
+							{formatSeconds(val.invoke_time)}
+						</Button>
+					)
+				})}
 		</Sheet>
 	)
 }
@@ -128,8 +156,9 @@ export const TaskTable = () => {
 	const [tasks, setTasks] = useState<TaskInter[]>([])
 	const [rowNum, setRowNum] = useState(10)
 	const [start, setStart] = useState(0)
+	const [searchTxt, setSearchTxt] = useState('')
 	useEffect(() => {
-		setTasks(getTaskList(30))
+		setTasks(getTaskList(7))
 	}, [])
 	return (
 		<Sheet
@@ -150,7 +179,13 @@ export const TaskTable = () => {
 			>
 				<Typography level='h1'>Tasks</Typography>
 				<Stack direction={'row'} gap={2}>
-					<Input placeholder='search...' sx={{}} />
+					<Input
+						placeholder='search...'
+						value={searchTxt}
+						onChange={(ev) => {
+							setSearchTxt(ev.target.value)
+						}}
+					/>
 					<Button>Search</Button>
 					<Button
 						color='info'
@@ -191,29 +226,44 @@ export const TaskTable = () => {
 						<thead>
 							<tr>
 								<th style={{ width: '40px' }}>#</th>
-								<th>id</th>
-								<th>name</th>
+								<th style={{ maxWidth: '200px' }}>name</th>
 								<th>command</th>
-								<th>create time</th>
-								<th>active</th>
+								<th style={{ width: '150px' }}>create time</th>
+								<th style={{ width: '70px' }}>active</th>
+								<th style={{ width: '100px' }}>status</th>
 								<th>operation</th>
 							</tr>
 						</thead>
 						<tbody>
 							{tasks.slice(start, start + rowNum).map((val, idx) => (
 								<tr key={val.id}>
-									<td>{start + idx + 1}</td>
-									<td>{val.id}</td>
 									<td>
-										<Input value={val.name} variant='plain' />
+										<Typography level='body2'>{start + idx + 1}</Typography>
 									</td>
-									<td>{val.command}</td>
-									<td>{formatSeconds(val.create_time)}</td>
+
+									<td>
+										<Typography level='body1'>{val.name}</Typography>
+									</td>
+									<td>
+										<Typography level='body1'>{val.command}</Typography>
+									</td>
+									<td>
+										<Typography level='body3'>
+											{formatSeconds(val.create_time)}
+										</Typography>
+									</td>
 									<td>
 										<Checkbox checked={val.active} variant='outlined' />
 									</td>
 									<td>
-										<Stack direction={'row'} gap={2}>
+										{val.running ? (
+											<CircularProgress size='sm' variant='plain' />
+										) : (
+											<Typography level='body2'>unstart</Typography>
+										)}
+									</td>
+									<td>
+										<Box>
 											<Button
 												size='sm'
 												variant='outlined'
@@ -229,7 +279,7 @@ export const TaskTable = () => {
 											<Button size='sm' variant='outlined' color='info'>
 												Run
 											</Button>
-										</Stack>
+										</Box>
 									</td>
 								</tr>
 							))}
@@ -250,6 +300,7 @@ export const TaskTable = () => {
 												value={rowNum}
 												onChange={(ev, val) => {
 													setRowNum(val!)
+													setStart(0)
 												}}
 											>
 												<Option value={5}>5</Option>
@@ -275,7 +326,10 @@ export const TaskTable = () => {
 												color='neutral'
 												onClick={() => {
 													setStart(
-														Math.min(start + rowNum, tasks.length - rowNum)
+														Math.min(
+															start + rowNum,
+															Math.max(0, tasks.length - rowNum)
+														)
 													)
 												}}
 											>

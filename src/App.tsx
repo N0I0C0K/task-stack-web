@@ -10,13 +10,24 @@ import {
 	Box,
 	Divider,
 	Avatar,
+	Tooltip,
 } from '@mui/joy'
-import { Apps, StackedLineChart, Person } from '@mui/icons-material'
+import {
+	Apps,
+	StackedLineChart,
+	Person,
+	FormatListNumbered,
+} from '@mui/icons-material'
+import FormatListBulletedIcon from '@mui/icons-material/FormatListBulleted'
+import HistoryIcon from '@mui/icons-material/History'
 import ModeToggle from './components/ModeToggle'
+import SettingsIcon from '@mui/icons-material/Settings'
+
 import { FC } from 'react'
 import { TaskTable } from './components/TaskTable'
 import Login from './pages/login'
 import { GlobalModal } from './components/GlobalModal'
+import { TaskList } from './components/TaskList'
 
 const FirstSidbar: FC = () => {
 	return (
@@ -59,17 +70,23 @@ const FirstSidbar: FC = () => {
 			<List sx={{ '--ListItem-radius': '8px', '--List-gap': '12px' }}>
 				<ListItem>
 					<ListItemButton selected variant='solid' color='primary'>
-						<Apps />
+						<Tooltip title='tasks'>
+							<FormatListBulletedIcon />
+						</Tooltip>
 					</ListItemButton>
 				</ListItem>
 				<ListItem>
 					<ListItemButton>
-						<Apps />
+						<Tooltip title='history session'>
+							<HistoryIcon />
+						</Tooltip>
 					</ListItemButton>
 				</ListItem>
 				<ListItem>
 					<ListItemButton>
-						<Apps />
+						<Tooltip title='settings'>
+							<SettingsIcon />
+						</Tooltip>
 					</ListItemButton>
 				</ListItem>
 			</List>
@@ -92,7 +109,8 @@ function App() {
 				}}
 			>
 				<FirstSidbar />
-				<TaskTable />
+				{/* <TaskTable /> */}
+				<TaskList />
 				{/* <Login /> */}
 				<GlobalModal />
 			</Box>
