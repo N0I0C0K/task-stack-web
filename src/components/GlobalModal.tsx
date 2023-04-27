@@ -1,7 +1,8 @@
 import { FC, ReactElement } from 'react'
-import { Modal, Sheet } from '@mui/joy'
+import { Box, Button, Divider, Modal, Sheet, Stack, Typography } from '@mui/joy'
 import { observable } from 'mobx'
 import { observer } from 'mobx-react-lite'
+import WarningIcon from '@mui/icons-material/Warning'
 
 var setGlobalOpen: React.Dispatch<React.SetStateAction<boolean>> | undefined =
 	undefined
@@ -68,3 +69,41 @@ export const globalModalStore = observable<{
 		this.onClose?.()
 	},
 })
+
+export const showConfirm = (
+	title: string,
+	subtitle: string,
+	onConfirm: () => void
+) => {
+	globalModalStore.open(
+		<>
+			<Typography startDecorator={<WarningIcon />} level='h4' color='warning'>
+				{title}
+			</Typography>
+			<Divider />
+			<Typography textColor='text.secondary'>{subtitle}</Typography>
+			<Box sx={{ display: 'flex', gap: 1, justifyContent: 'flex-end', pt: 2 }}>
+				<Button
+					variant='plain'
+					color='neutral'
+					onClick={() => {
+						globalModalStore.close()
+					}}
+				>
+					Cancel
+				</Button>
+				<Button
+					variant='solid'
+					color='danger'
+					onClick={() => {
+						onConfirm()
+						globalModalStore.close()
+					}}
+				>
+					Confirm
+				</Button>
+			</Box>
+		</>,
+		() => {}
+	)
+}

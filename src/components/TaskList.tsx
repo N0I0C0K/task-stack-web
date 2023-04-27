@@ -26,7 +26,14 @@ import CancelIcon from '@mui/icons-material/Cancel'
 import TaskAltIcon from '@mui/icons-material/TaskAlt'
 import DeleteIcon from '@mui/icons-material/Delete'
 import { toast } from './Toast'
-import { getSessoionOutput, getSessionList, getTaskList } from 'utils/datafetch'
+import {
+	getSessoionOutput,
+	getSessionList,
+	getTaskList,
+	runTask,
+	delTask,
+} from 'utils/datafetch'
+import { showConfirm } from './GlobalModal'
 
 const SessionListItem: FC<{ session: SessionInter }> = ({ session }) => {
 	const [output, setOutput] = useState<SessionOutputInter>()
@@ -58,7 +65,12 @@ const SessionListItem: FC<{ session: SessionInter }> = ({ session }) => {
 			) : (
 				<Stack gap={1}>
 					<Typography level='h4'>Output:</Typography>
-					<Textarea value={output?.output} color='success' variant='soft' />
+					<Textarea
+						value={output?.output}
+						color='success'
+						variant='soft'
+						maxRows={20}
+					/>
 				</Stack>
 			)}
 		</Box>
@@ -68,12 +80,13 @@ const SessionListItem: FC<{ session: SessionInter }> = ({ session }) => {
 const TaskListItem: FC<{ task: TaskInter }> = ({ task }) => {
 	const [sessions, setSession] = useState<SessionInter[]>([])
 	const [curSess, setCurSess] = useState<SessionInter>()
+	const [tr, refush] = useState(0)
 	useEffect(() => {
 		getSessionList(task.id).then((data) => {
 			setSession(data)
 			setCurSess(data[0])
 		})
-	}, [task.id])
+	}, [task.id, tr])
 	return (
 		<Stack direction={'row'} gap={2} sx={{ height: '100%', width: '100%' }}>
 			<Box
@@ -97,7 +110,15 @@ const TaskListItem: FC<{ task: TaskInter }> = ({ task }) => {
 				<Divider sx={{ my: 1, mx: 1 }} />
 				<Stack direction={'row'} gap={1}>
 					{!task.running ? (
-						<Button variant='soft' startDecorator={<PlayArrowIcon />}>
+						<Button
+							variant='soft'
+							startDecorator={<PlayArrowIcon />}
+							onClick={() => {
+								runTask(task.id).then(() => {
+									refush(tr + 1)
+								})
+							}}
+						>
 							Run
 						</Button>
 					) : (
@@ -121,6 +142,15 @@ const TaskListItem: FC<{ task: TaskInter }> = ({ task }) => {
 						startDecorator={<DeleteIcon />}
 						color='danger'
 						disabled={task.running}
+						onClick={() => {
+							showConfirm(
+								'Confirm Delete',
+								`Make sure to delete ${task.name}-${task.id}?`,
+								() => {
+									delTask(task.id)
+								}
+							)
+						}}
 					>
 						Del
 					</Button>

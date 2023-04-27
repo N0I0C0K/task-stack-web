@@ -29,6 +29,7 @@ import Login from './pages/login'
 import { GlobalModal } from './components/GlobalModal'
 import { TaskList } from './components/TaskList'
 import { GlobalToast } from 'components/Toast'
+import { TestDataChangeToggle } from 'components/TestDataChangeToggle'
 
 const FirstSidbar: FC = () => {
 	return (
@@ -92,10 +93,11 @@ const FirstSidbar: FC = () => {
 				</ListItem>
 			</List>
 			<Divider />
+			<TestDataChangeToggle />
+			<ModeToggle />
 			<Avatar variant='outlined'>
 				<Person />
 			</Avatar>
-			<ModeToggle />
 		</Sheet>
 	)
 }
@@ -114,7 +116,7 @@ function App() {
 				<FirstSidbar />
 				{/* <TaskTable /> */}
 				<TaskList />
-				{/* <Login /> */}
+				<Login />
 				<GlobalModal />
 			</Box>
 			<GlobalToast />

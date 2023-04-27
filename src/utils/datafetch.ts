@@ -7,12 +7,20 @@ import {
 	SessionInter,
 } from 'Interface'
 
-const TestData = true
+var useTestData = false
+
+export const setTestData = (test: boolean) => {
+	useTestData = test
+}
+
+export const isUseTestData = () => {
+	return useTestData
+}
 
 export const getSessoionOutput = async (
 	session_id: string
 ): Promise<SessionOutputInter> => {
-	return TestData
+	return useTestData
 		? getTestSessionOutPut(session_id)
 		: getRealSessionOutput(session_id)
 }
@@ -36,7 +44,7 @@ const getRealSessionOutput = async (
 }
 
 export const getTaskList = async (): Promise<TaskInter[]> => {
-	return TestData ? getTestTaskList() : getRealTaskList()
+	return useTestData ? getTestTaskList() : getRealTaskList()
 }
 
 const getTestTaskList = async (): Promise<TaskInter[]> => {
@@ -63,7 +71,7 @@ const getRealTaskList = async (): Promise<TaskInter[]> => {
 export const getSessionList = async (
 	task_id: string
 ): Promise<SessionInter[]> => {
-	return TestData ? getTestSessionList(task_id) : getRealSessionList(task_id)
+	return useTestData ? getTestSessionList(task_id) : getRealSessionList(task_id)
 }
 
 const getTestSessionList = async (task_id: string): Promise<SessionInter[]> => {
@@ -86,4 +94,18 @@ const getRealSessionList = async (task_id: string): Promise<SessionInter[]> => {
 		{ params: { task_id: task_id } }
 	)
 	return res.data.sessions
+}
+
+export const runTask = async (task_id: string): Promise<string> => {
+	const res = await http.get<HttpBase & { session_id: string }>('/task/run', {
+		params: {
+			task_id: task_id,
+		},
+	})
+	return res.data.session_id
+}
+
+export const delTask = async (task_id: string): Promise<boolean> => {
+	const res = await http.delete<HttpBase>('/task/del', { params: { task_id } })
+	return res.data.code === 200
 }
