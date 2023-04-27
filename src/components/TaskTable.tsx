@@ -16,12 +16,7 @@ import {
 	IconButton,
 } from '@mui/joy'
 import Table from '@mui/joy/Table'
-import {
-	SessionInter,
-	TaskInter,
-	getSessionList,
-	getTaskList,
-} from '../Interface'
+import { SessionInter, TaskInter } from '../Interface'
 import ArrowBackIosIcon from '@mui/icons-material/ArrowBackIos'
 import PlayArrowIcon from '@mui/icons-material/PlayArrow'
 import DeleteIcon from '@mui/icons-material/Delete'
@@ -34,6 +29,7 @@ import { getFakeOutput } from '../utils/fake'
 import ErrorIcon from '@mui/icons-material/Error'
 
 import CircularProgress from '@mui/joy/CircularProgress'
+import { getSessionList, getTaskList } from 'utils/datafetch'
 
 const TaskDetail: FC<{
 	task: TaskInter
@@ -41,7 +37,9 @@ const TaskDetail: FC<{
 }> = ({ task, onClose }) => {
 	const [session, setSession] = useState<SessionInter[]>([])
 	useEffect(() => {
-		setSession(getSessionList(task.id, 100))
+		getSessionList(task.id).then((data) => {
+			setSession(data)
+		})
 	}, [task])
 	const [page, setPage] = useState(0)
 	const pagenum = 8
@@ -125,7 +123,7 @@ const TaskDetail: FC<{
 										</Typography>
 										<Typography level='body1'>{val.command}</Typography>
 										<Typography level='body3'>
-											{formatSeconds(val.invoke_time)}-
+											{formatSeconds(val.start_time)}-
 											{formatSeconds(val.finish_time)}
 										</Typography>
 										<Divider />
@@ -143,7 +141,7 @@ const TaskDetail: FC<{
 								)
 							}}
 						>
-							{formatSeconds(val.invoke_time)}
+							{formatSeconds(val.start_time)}
 						</Button>
 					)
 				})}
@@ -158,7 +156,9 @@ export const TaskTable = () => {
 	const [start, setStart] = useState(0)
 	const [searchTxt, setSearchTxt] = useState('')
 	useEffect(() => {
-		setTasks(getTaskList(7))
+		getTaskList().then((data) => {
+			setTasks(data)
+		})
 	}, [])
 	return (
 		<Sheet

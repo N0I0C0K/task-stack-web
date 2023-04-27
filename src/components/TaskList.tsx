@@ -1,22 +1,13 @@
 import { formatSeconds } from '../utils'
 import { nanoid } from 'nanoid'
-import {
-	SessionInter,
-	SessionOutputInter,
-	TaskInter,
-	getSessionList,
-	getSessoionOutput,
-	getTaskList,
-} from '../Interface'
+import { SessionInter, SessionOutputInter, TaskInter } from '../Interface'
 import {
 	Box,
 	Button,
-	Card,
 	CircularProgress,
 	Divider,
 	FormControl,
 	FormLabel,
-	Grid,
 	Input,
 	List,
 	ListItem,
@@ -34,26 +25,42 @@ import PlayArrowIcon from '@mui/icons-material/PlayArrow'
 import CancelIcon from '@mui/icons-material/Cancel'
 import TaskAltIcon from '@mui/icons-material/TaskAlt'
 import DeleteIcon from '@mui/icons-material/Delete'
+import { toast } from './Toast'
+import { getSessoionOutput, getSessionList, getTaskList } from 'utils/datafetch'
 
 const SessionListItem: FC<{ session: SessionInter }> = ({ session }) => {
 	const [output, setOutput] = useState<SessionOutputInter>()
 	useEffect(() => {
-		setOutput(getSessoionOutput(100))
+		getSessoionOutput(session.id).then((data) => {
+			setOutput(data)
+		})
 	}, [session.id])
 	return (
 		<Box width={'100%'}>
-			<Typography level='h3'>
-				{formatSeconds(session.invoke_time)}
+			<Typography
+				level='h3'
+				color={
+					session.running ? undefined : session.success ? 'success' : 'danger'
+				}
+			>
+				{formatSeconds(session.start_time)}
 				{' - '}
 				{formatSeconds(session.finish_time)}
 			</Typography>
 			<Stack direction={'row'} gap={2}>
 				<Typography level='body3'>{session.id}</Typography>
 			</Stack>
-			<Stack gap={1}>
-				<Typography level='h4'>Output:</Typography>
-				<Textarea value={output?.output} color='success' variant='soft' />
-			</Stack>
+			{session.running ? (
+				<>
+					<CircularProgress />
+					<Typography>Still Running</Typography>
+				</>
+			) : (
+				<Stack gap={1}>
+					<Typography level='h4'>Output:</Typography>
+					<Textarea value={output?.output} color='success' variant='soft' />
+				</Stack>
+			)}
 		</Box>
 	)
 }
@@ -62,13 +69,19 @@ const TaskListItem: FC<{ task: TaskInter }> = ({ task }) => {
 	const [sessions, setSession] = useState<SessionInter[]>([])
 	const [curSess, setCurSess] = useState<SessionInter>()
 	useEffect(() => {
-		const t = getSessionList(task.id, 100)
-		setSession(t)
-		setCurSess(t[0])
+		getSessionList(task.id).then((data) => {
+			setSession(data)
+			setCurSess(data[0])
+		})
 	}, [task.id])
 	return (
 		<Stack direction={'row'} gap={2} sx={{ height: '100%', width: '100%' }}>
-			<Box height={'100%'} width={'50%'}>
+			<Box
+				height={'100%'}
+				width={'50%'}
+				display={'flex'}
+				flexDirection={'column'}
+			>
 				<Typography level='h3'>{task.name}</Typography>
 				<Stack direction={'row'} gap={2}>
 					<Typography level='body3'>
@@ -92,6 +105,13 @@ const TaskListItem: FC<{ task: TaskInter }> = ({ task }) => {
 							variant='soft'
 							startDecorator={<CancelIcon />}
 							color='warning'
+							onClick={() => {
+								toast.alert({
+									title: 'stop!',
+									subtitle: `${task.id}`,
+									color: 'success',
+								})
+							}}
 						>
 							Stop
 						</Button>
@@ -110,7 +130,6 @@ const TaskListItem: FC<{ task: TaskInter }> = ({ task }) => {
 				<Sheet
 					sx={{
 						width: 'auto',
-						height: '60vh',
 						overflow: 'auto',
 						borderRadius: 'sm',
 						p: 1,
@@ -129,7 +148,6 @@ const TaskListItem: FC<{ task: TaskInter }> = ({ task }) => {
 											borderRadius: 'sm',
 										}}
 										variant={curSess?.id === val.id ? 'soft' : 'plain'}
-										color='neutral'
 									>
 										<ListItemDecorator>
 											{val.running ? (
@@ -142,7 +160,17 @@ const TaskListItem: FC<{ task: TaskInter }> = ({ task }) => {
 												<TaskAltIcon />
 											)}
 										</ListItemDecorator>
-										<Typography>{formatSeconds(val.invoke_time)}</Typography>
+										<Typography
+											color={
+												val.running
+													? undefined
+													: val.success
+													? 'success'
+													: 'danger'
+											}
+										>
+											{formatSeconds(val.start_time)}
+										</Typography>
 									</ListItemButton>
 								</ListItem>
 							)
@@ -165,12 +193,13 @@ export const TaskList: FC = () => {
 	const [curTask, setCurTask] = useState<TaskInter>()
 	const [filterTxt, setFilterTxt] = useState('')
 	useEffect(() => {
-		const t = getTaskList(20)
-		setTask(t)
-		setCurTask(t[0])
+		getTaskList().then((data) => {
+			setTask(data)
+			setCurTask(data[0])
+		})
 	}, [])
 	return (
-		<Sheet sx={{ px: 3, py: 3, width: '100%' }}>
+		<Sheet sx={{ px: 3, py: 3, width: '100%', height: '92vh' }}>
 			<Typography level='h1' sx={{ mb: 2 }}>
 				Task List
 			</Typography>
@@ -179,16 +208,21 @@ export const TaskList: FC = () => {
 				sx={{
 					borderRadius: 'sm',
 					width: '100%',
+					height: '100%',
 				}}
 			>
-				<Stack direction={'row'} gap={2} sx={{ p: 2, width: '100%' }}>
+				<Stack
+					direction={'row'}
+					gap={2}
+					sx={{ p: 2, width: '100%', height: '100%' }}
+				>
 					<Sheet
 						sx={{
 							width: 'auto',
-							height: '80vh',
-							overflow: 'auto',
-							borderRadius: 'sm',
+							height: '100%',
 							p: 1,
+							display: 'flex',
+							flexDirection: 'column',
 						}}
 					>
 						<Input
@@ -198,51 +232,59 @@ export const TaskList: FC = () => {
 								setFilterTxt(ev.target.value)
 							}}
 						/>
-						<List>
-							{tasks
-								.filter((val) => {
-									return (
-										filterTxt.length === 0 ||
-										val.name.includes(filterTxt) ||
-										val.command.includes(filterTxt)
-									)
-								})
-								.map((val) => {
-									return (
-										<ListItem key={nanoid()}>
-											<ListItemButton
-												selected={curTask?.id === val.id}
-												onClick={() => {
-													setCurTask(val)
-												}}
-												sx={{
-													borderRadius: 'sm',
-												}}
-												variant={curTask?.id === val.id ? 'soft' : undefined}
-												color={curTask?.id === val.id ? 'neutral' : undefined}
-											>
-												<ListItemDecorator>
-													{val.running ? (
-														<CircularProgress
-															size='sm'
-															thickness={2}
-															color='neutral'
-														/>
-													) : (
-														<TaskAltIcon />
-													)}
-												</ListItemDecorator>
-												<Tooltip title={val.command}>
-													<Stack>
-														<Typography level='body1'>{val.name}</Typography>
-														<Typography level='body3'>{val.id}</Typography>
-													</Stack>
-												</Tooltip>
-											</ListItemButton>
-										</ListItem>
-									)
-								})}
-						</List>
+						<Sheet
+							sx={{
+								width: 'auto',
+								overflow: 'auto',
+								p: 1,
+							}}
+						>
+							<List>
+								{tasks
+									.filter((val) => {
+										return (
+											filterTxt.length === 0 ||
+											val.name.includes(filterTxt) ||
+											val.command.includes(filterTxt)
+										)
+									})
+									.map((val) => {
+										return (
+											<ListItem key={nanoid()}>
+												<ListItemButton
+													selected={curTask?.id === val.id}
+													onClick={() => {
+														setCurTask(val)
+													}}
+													sx={{
+														borderRadius: 'sm',
+													}}
+													variant={curTask?.id === val.id ? 'soft' : undefined}
+													color={curTask?.id === val.id ? 'neutral' : undefined}
+												>
+													<ListItemDecorator>
+														{val.running ? (
+															<CircularProgress
+																size='sm'
+																thickness={2}
+																color='neutral'
+															/>
+														) : (
+															<TaskAltIcon />
+														)}
+													</ListItemDecorator>
+													<Tooltip title={val.command}>
+														<Stack>
+															<Typography level='body1'>{val.name}</Typography>
+															<Typography level='body3'>{val.id}</Typography>
+														</Stack>
+													</Tooltip>
+												</ListItemButton>
+											</ListItem>
+										)
+									})}
+							</List>
+						</Sheet>
 					</Sheet>
 					<Divider orientation='vertical' />
 					{curTask !== undefined ? <TaskListItem task={curTask} /> : null}

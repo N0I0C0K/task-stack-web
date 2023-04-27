@@ -28,6 +28,7 @@ import { TaskTable } from './components/TaskTable'
 import Login from './pages/login'
 import { GlobalModal } from './components/GlobalModal'
 import { TaskList } from './components/TaskList'
+import { GlobalToast } from 'components/Toast'
 
 const FirstSidbar: FC = () => {
 	return (
@@ -106,6 +107,8 @@ function App() {
 			<Box
 				sx={{
 					display: 'flex',
+					width: '100%',
+					height: '100%',
 				}}
 			>
 				<FirstSidbar />
@@ -114,6 +117,7 @@ function App() {
 				{/* <Login /> */}
 				<GlobalModal />
 			</Box>
+			<GlobalToast />
 		</CssVarsProvider>
 	)
 }
