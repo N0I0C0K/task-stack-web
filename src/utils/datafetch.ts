@@ -6,12 +6,16 @@ import {
 	TaskInter,
 	SessionInter,
 } from 'Interface'
+import { nanoid } from 'nanoid'
 
 var useTestData = false
 
 export const setTestData = (test: boolean) => {
 	useTestData = test
+	localStorage.setItem('useTestData', String(useTestData))
 }
+
+setTestData(localStorage.getItem('useTestData') === 'true')
 
 export const isUseTestData = () => {
 	return useTestData
@@ -28,7 +32,7 @@ const getTestSessionOutPut = async (
 	session_id: string
 ): Promise<SessionOutputInter> => {
 	return {
-		output: faker.lorem.sentence(10),
+		output: faker.lorem.paragraphs(20),
 	}
 }
 const getRealSessionOutput = async (
@@ -97,6 +101,7 @@ const getRealSessionList = async (task_id: string): Promise<SessionInter[]> => {
 }
 
 export const runTask = async (task_id: string): Promise<string> => {
+	if (useTestData) return nanoid()
 	const res = await http.get<HttpBase & { session_id: string }>('/task/run', {
 		params: {
 			task_id: task_id,
@@ -106,6 +111,15 @@ export const runTask = async (task_id: string): Promise<string> => {
 }
 
 export const delTask = async (task_id: string): Promise<boolean> => {
+	if (useTestData) return true
 	const res = await http.delete<HttpBase>('/task/del', { params: { task_id } })
 	return res.data.code === 200
+}
+
+export const stopTask = async (task_id: string): Promise<boolean> => {
+	if (useTestData) return true
+	const res = await http.get<HttpBase & { success: boolean }>('/task/stop', {
+		params: { task_id },
+	})
+	return res.data.success
 }

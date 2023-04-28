@@ -34,6 +34,8 @@ import {
 	delTask,
 } from 'utils/datafetch'
 import { showConfirm } from './GlobalModal'
+import { taskStore } from 'store/taskstore'
+import { observer } from 'mobx-react-lite'
 
 const SessionListItem: FC<{ session: SessionInter }> = ({ session }) => {
 	const [output, setOutput] = useState<SessionOutputInter>()
@@ -77,7 +79,7 @@ const SessionListItem: FC<{ session: SessionInter }> = ({ session }) => {
 	)
 }
 
-const TaskListItem: FC<{ task: TaskInter }> = ({ task }) => {
+const TaskListItem: FC<{ task: TaskInter }> = observer(({ task }) => {
 	const [sessions, setSession] = useState<SessionInter[]>([])
 	const [curSess, setCurSess] = useState<SessionInter>()
 	const [tr, refush] = useState(0)
@@ -114,9 +116,7 @@ const TaskListItem: FC<{ task: TaskInter }> = ({ task }) => {
 							variant='soft'
 							startDecorator={<PlayArrowIcon />}
 							onClick={() => {
-								runTask(task.id).then(() => {
-									refush(tr + 1)
-								})
+								taskStore.run(task.id)
 							}}
 						>
 							Run
@@ -127,6 +127,7 @@ const TaskListItem: FC<{ task: TaskInter }> = ({ task }) => {
 							startDecorator={<CancelIcon />}
 							color='warning'
 							onClick={() => {
+								taskStore.stop(task.id)
 								toast.alert({
 									title: 'stop!',
 									subtitle: `${task.id}`,
@@ -147,7 +148,7 @@ const TaskListItem: FC<{ task: TaskInter }> = ({ task }) => {
 								'Confirm Delete',
 								`Make sure to delete ${task.name}-${task.id}?`,
 								() => {
-									delTask(task.id)
+									taskStore.delete(task.id)
 								}
 							)
 						}}
@@ -216,18 +217,12 @@ const TaskListItem: FC<{ task: TaskInter }> = ({ task }) => {
 			) : null}
 		</Stack>
 	)
-}
+})
 
-export const TaskList: FC = () => {
-	const [tasks, setTask] = useState<TaskInter[]>([])
-	const [curTask, setCurTask] = useState<TaskInter>()
+export const TaskList: FC = observer(() => {
+	const [curTask, setCurTask] = useState<TaskInter>(taskStore.tasks[0])
 	const [filterTxt, setFilterTxt] = useState('')
-	useEffect(() => {
-		getTaskList().then((data) => {
-			setTask(data)
-			setCurTask(data[0])
-		})
-	}, [])
+
 	return (
 		<Sheet sx={{ px: 3, py: 3, width: '100%', height: '92vh' }}>
 			<Typography level='h1' sx={{ mb: 2 }}>
@@ -262,6 +257,9 @@ export const TaskList: FC = () => {
 								setFilterTxt(ev.target.value)
 							}}
 						/>
+						<Typography textColor={'text.tertiary'} level='body5'>
+							find {taskStore.tasks.length} tasks
+						</Typography>
 						<Sheet
 							sx={{
 								width: 'auto',
@@ -270,7 +268,7 @@ export const TaskList: FC = () => {
 							}}
 						>
 							<List>
-								{tasks
+								{taskStore.tasks
 									.filter((val) => {
 										return (
 											filterTxt.length === 0 ||
@@ -322,4 +320,4 @@ export const TaskList: FC = () => {
 			</Sheet>
 		</Sheet>
 	)
-}
+})

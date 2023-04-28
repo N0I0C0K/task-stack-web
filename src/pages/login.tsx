@@ -11,6 +11,8 @@ const Login: FC = () => {
 			.then(({ status }) => {
 				if (status !== 200) {
 					setOpen(true)
+				} else {
+					setOpen(false)
 				}
 			})
 			.catch((reason) => {
