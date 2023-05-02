@@ -1,6 +1,7 @@
 import { FC, useState, useEffect } from 'react'
 import { Sheet, Modal, Typography, Input, Button } from '@mui/joy'
 import { http, setToken } from '../utils/http'
+import { taskStore } from 'store/taskstore'
 
 const Login: FC = () => {
 	const [open, setOpen] = useState(false)
@@ -71,6 +72,7 @@ const Login: FC = () => {
 									if (data.code === 200) {
 										setToken(data.token)
 										setOpen(false)
+										taskStore.refresh()
 									}
 								})
 						}}

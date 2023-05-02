@@ -22,5 +22,7 @@ export interface SessionInter {
 }
 
 export interface SessionOutputInter {
+	session_id: string
 	output: string
+	finish: boolean
 }

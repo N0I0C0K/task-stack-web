@@ -26,16 +26,11 @@ import CancelIcon from '@mui/icons-material/Cancel'
 import TaskAltIcon from '@mui/icons-material/TaskAlt'
 import DeleteIcon from '@mui/icons-material/Delete'
 import { toast } from './Toast'
-import {
-	getSessoionOutput,
-	getSessionList,
-	getTaskList,
-	runTask,
-	delTask,
-} from 'utils/datafetch'
+import { getSessoionOutput, getSessionList } from 'utils/datafetch'
 import { showConfirm } from './GlobalModal'
 import { taskStore } from 'store/taskstore'
 import { observer } from 'mobx-react-lite'
+import { baseUrl, getToken } from 'utils/http'
 
 const SessionListItem: FC<{ session: SessionInter }> = ({ session }) => {
 	const [output, setOutput] = useState<SessionOutputInter>()
@@ -43,6 +38,38 @@ const SessionListItem: FC<{ session: SessionInter }> = ({ session }) => {
 		getSessoionOutput(session.id).then((data) => {
 			setOutput(data)
 		})
+	}, [session.id])
+	useEffect(() => {
+		if (!session.running) return
+
+		const ws = new WebSocket(
+			`ws://127.0.0.1:5555/api/task/session/communicate?session_id=${session.id}`
+		)
+		ws.onmessage = (ev) => {
+			const tars = String(ev.data)
+			if (tars === `task-${session.id} over`) {
+				ws.close()
+				return
+			}
+			setOutput((prevOutput) => {
+				return {
+					output: prevOutput!.output + tars,
+					finish: prevOutput!.finish,
+					session_id: prevOutput!.session_id,
+				}
+			})
+		}
+		ws.onclose = (ev) => {
+			ws.close()
+		}
+
+		setTimeout(() => {
+			ws.send('1')
+		}, 1000)
+
+		return () => {
+			ws.close()
+		}
 	}, [session.id])
 	return (
 		<Box width={'100%'}>
@@ -64,17 +91,16 @@ const SessionListItem: FC<{ session: SessionInter }> = ({ session }) => {
 					<CircularProgress />
 					<Typography>Still Running</Typography>
 				</>
-			) : (
-				<Stack gap={1}>
-					<Typography level='h4'>Output:</Typography>
-					<Textarea
-						value={output?.output}
-						color='success'
-						variant='soft'
-						maxRows={20}
-					/>
-				</Stack>
-			)}
+			) : null}
+			<Stack gap={1}>
+				<Typography level='h4'>Output:</Typography>
+				<Textarea
+					value={output?.output}
+					color='success'
+					variant='soft'
+					maxRows={20}
+				/>
+			</Stack>
 		</Box>
 	)
 }
@@ -82,13 +108,12 @@ const SessionListItem: FC<{ session: SessionInter }> = ({ session }) => {
 const TaskListItem: FC<{ task: TaskInter }> = observer(({ task }) => {
 	const [sessions, setSession] = useState<SessionInter[]>([])
 	const [curSess, setCurSess] = useState<SessionInter>()
-	const [tr, refush] = useState(0)
 	useEffect(() => {
 		getSessionList(task.id).then((data) => {
 			setSession(data)
 			setCurSess(data[0])
 		})
-	}, [task.id, tr])
+	}, [task.id])
 	return (
 		<Stack direction={'row'} gap={2} sx={{ height: '100%', width: '100%' }}>
 			<Box

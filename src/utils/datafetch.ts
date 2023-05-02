@@ -32,14 +32,16 @@ const getTestSessionOutPut = async (
 	session_id: string
 ): Promise<SessionOutputInter> => {
 	return {
+		session_id: faker.random.alphaNumeric(16),
 		output: faker.lorem.paragraphs(20),
+		finish: faker.datatype.boolean(),
 	}
 }
 const getRealSessionOutput = async (
 	session_id: string
 ): Promise<SessionOutputInter> => {
 	const res = await http.get<HttpBase & SessionOutputInter>(
-		'/task/session/get',
+		'/task/session/output',
 		{
 			params: { session_id: session_id },
 		}
