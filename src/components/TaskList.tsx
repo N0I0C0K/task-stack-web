@@ -30,7 +30,6 @@ import { getSessoionOutput, getSessionList } from 'utils/datafetch'
 import { showConfirm } from './GlobalModal'
 import { taskStore } from 'store/taskstore'
 import { observer } from 'mobx-react-lite'
-import { baseUrl, getToken } from 'utils/http'
 
 const SessionListItem: FC<{ session: SessionInter }> = ({ session }) => {
 	const [output, setOutput] = useState<SessionOutputInter>()
@@ -110,6 +109,9 @@ const TaskListItem: FC<{ task: TaskInter }> = observer(({ task }) => {
 	const [curSess, setCurSess] = useState<SessionInter>()
 	useEffect(() => {
 		getSessionList(task.id).then((data) => {
+			data.sort((l, r) => {
+				return r.start_time - l.start_time
+			})
 			setSession(data)
 			setCurSess(data[0])
 		})

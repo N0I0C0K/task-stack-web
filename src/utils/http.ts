@@ -16,7 +16,7 @@ export const setToken = (itoken: string) => {
 	http.defaults.headers['token'] = token
 }
 
-export const getToken = () => {
+export const getToken = (): string => {
 	return token
 }
 
