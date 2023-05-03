@@ -1,18 +1,27 @@
 import { action, observable } from 'mobx'
-import { TaskInter } from '../Interface'
-import { delTask, getTaskList, runTask, stopTask } from 'utils/datafetch'
+import { SessionInter, TaskInter } from '../Interface'
+import {
+	delTask,
+	getSessionList,
+	getTaskList,
+	runTask,
+	stopTask,
+} from 'utils/datafetch'
 
-export const taskStore = observable<{
+interface TaskStoreInter {
 	tasks: TaskInter[]
 	refresh: () => void
 	delete: (task_id: string) => void
 	stop: (task_id: string) => void
 	run: (task_id: string) => void
-}>({
+}
+
+export const taskStore = observable<TaskStoreInter>({
 	tasks: [],
 	refresh() {
 		getTaskList().then((data) => {
 			this.tasks = data
+			selectTask.setCurTask(this.tasks[0])
 		})
 	},
 	delete(task_id) {
@@ -44,6 +53,23 @@ export const taskStore = observable<{
 				})
 			)
 		}
+	},
+})
+
+export const selectTask = observable<{
+	task?: TaskInter
+	sessions?: SessionInter[]
+	setCurTask: (tar: TaskInter) => void
+}>({
+	task: undefined,
+	sessions: undefined,
+	setCurTask(tar) {
+		this.task = tar
+		getSessionList(tar.id).then(
+			action((data) => {
+				this.sessions = data
+			})
+		)
 	},
 })
 

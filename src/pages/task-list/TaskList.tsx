@@ -1,6 +1,6 @@
-import { formatSeconds } from '../utils'
+import { formatSeconds } from '../../utils'
 import { nanoid } from 'nanoid'
-import { SessionInter, SessionOutputInter, TaskInter } from '../Interface'
+import { SessionInter, SessionOutputInter, TaskInter } from '../../Interface'
 import {
 	Box,
 	Button,
@@ -9,6 +9,7 @@ import {
 	FormControl,
 	FormLabel,
 	Input,
+	LinearProgress,
 	List,
 	ListItem,
 	ListItemButton,
@@ -25,11 +26,12 @@ import PlayArrowIcon from '@mui/icons-material/PlayArrow'
 import CancelIcon from '@mui/icons-material/Cancel'
 import TaskAltIcon from '@mui/icons-material/TaskAlt'
 import DeleteIcon from '@mui/icons-material/Delete'
-import { toast } from './Toast'
+import { toast } from '../../components/Toast'
 import { getSessoionOutput, getSessionList } from 'utils/datafetch'
-import { showConfirm } from './GlobalModal'
+import { showConfirm } from '../../components/GlobalModal'
 import { taskStore } from 'store/taskstore'
 import { observer } from 'mobx-react-lite'
+import { websocketBaseUrl } from 'utils/http'
 
 const SessionListItem: FC<{ session: SessionInter }> = ({ session }) => {
 	const [output, setOutput] = useState<SessionOutputInter>()
@@ -42,7 +44,7 @@ const SessionListItem: FC<{ session: SessionInter }> = ({ session }) => {
 		if (!session.running) return
 
 		const ws = new WebSocket(
-			`ws://127.0.0.1:5555/api/task/session/communicate?session_id=${session.id}`
+			`${websocketBaseUrl}/task/session/communicate?session_id=${session.id}`
 		)
 		ws.onmessage = (ev) => {
 			const tars = String(ev.data)
@@ -61,21 +63,33 @@ const SessionListItem: FC<{ session: SessionInter }> = ({ session }) => {
 		ws.onclose = (ev) => {
 			ws.close()
 		}
-
-		setTimeout(() => {
-			ws.send('1')
-		}, 1000)
+		ws.onopen = (ev) => {
+			setTimeout(() => {
+				ws.send('1')
+			}, 1000)
+		}
 
 		return () => {
 			ws.close()
 		}
-	}, [session.id])
+	}, [session.id, session.running])
 	return (
-		<Box width={'100%'}>
+		<Box width={'100%'} display={'flex'} flexDirection={'column'} gap={1}>
 			<Typography
 				level='h3'
 				color={
 					session.running ? undefined : session.success ? 'success' : 'danger'
+				}
+				endDecorator={
+					session.running ? (
+						<>
+							<CircularProgress
+								variant='plain'
+								size='sm'
+								sx={{ maxHeight: '20px' }}
+							/>
+						</>
+					) : null
 				}
 			>
 				{formatSeconds(session.start_time)}
@@ -85,12 +99,7 @@ const SessionListItem: FC<{ session: SessionInter }> = ({ session }) => {
 			<Stack direction={'row'} gap={2}>
 				<Typography level='body3'>{session.id}</Typography>
 			</Stack>
-			{session.running ? (
-				<>
-					<CircularProgress />
-					<Typography>Still Running</Typography>
-				</>
-			) : null}
+
 			<Stack gap={1}>
 				<Typography level='h4'>Output:</Typography>
 				<Textarea
@@ -251,7 +260,13 @@ export const TaskList: FC = observer(() => {
 	const [filterTxt, setFilterTxt] = useState('')
 
 	return (
-		<Sheet sx={{ px: 3, py: 3, width: '100%', height: '92vh' }}>
+		<Box
+			p={3}
+			width={'100%'}
+			height={'100%'}
+			display={'flex'}
+			flexDirection={'column'}
+		>
 			<Typography level='h1' sx={{ mb: 2 }}>
 				Task List
 			</Typography>
@@ -260,7 +275,8 @@ export const TaskList: FC = observer(() => {
 				sx={{
 					borderRadius: 'sm',
 					width: '100%',
-					height: '100%',
+					flexGrow: 1,
+					overflow: 'auto',
 				}}
 			>
 				<Stack
@@ -345,6 +361,6 @@ export const TaskList: FC = observer(() => {
 					{curTask !== undefined ? <TaskListItem task={curTask} /> : null}
 				</Stack>
 			</Sheet>
-		</Sheet>
+		</Box>
 	)
 })

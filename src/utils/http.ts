@@ -2,6 +2,7 @@ import axios from 'axios'
 
 export var token = ''
 export const baseUrl = 'http://127.0.0.1:5555/api'
+export const websocketBaseUrl = 'ws://127.0.0.1:5555/api'
 
 export const http = axios.create({
 	baseURL: baseUrl,

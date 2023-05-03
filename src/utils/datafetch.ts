@@ -1,5 +1,5 @@
 import { faker } from '@faker-js/faker'
-import { getToken, http } from './http'
+import { getToken, http, websocketBaseUrl } from './http'
 import {
 	SessionOutputInter,
 	HttpBase,
@@ -9,6 +9,7 @@ import {
 import { nanoid } from 'nanoid'
 import { action } from 'mobx'
 import { taskStore } from 'store/taskstore'
+import { toast } from 'components/Toast'
 
 var useTestData = false
 
@@ -126,65 +127,4 @@ export const stopTask = async (task_id: string): Promise<boolean> => {
 		params: { task_id },
 	})
 	return res.data.success
-}
-
-type Callback<T> = (p: T) => void
-
-class Event<T> {
-	private actions: Set<Callback<T>> = new Set()
-
-	invoke(p: T): void {
-		console.log(p)
-		for (const func of this.actions) {
-			func(p)
-		}
-	}
-
-	add(func: Callback<T>): void {
-		this.actions.add(func)
-	}
-
-	remove(func: Callback<T>): void {
-		this.actions.delete(func)
-	}
-
-	clear(): void {
-		this.actions.clear()
-	}
-}
-interface MessageType {
-	task_id: string
-	session_id: string
-}
-
-const taskStartEvent = new Event<MessageType>()
-const taskFinishEvent = new Event<MessageType>()
-
-export const initEventListen = () => {
-	const websocket = new WebSocket(
-		`ws://127.0.0.1:5555/api/task/listener?token=${getToken()}`
-	)
-
-	taskFinishEvent.clear()
-	taskStartEvent.clear()
-
-	websocket.onmessage = (data) => {
-		const t = JSON.parse(String(data.data)) as MessageType & {
-			event: 'task_start' | 'task_finish'
-		}
-		switch (t.event) {
-			case 'task_finish':
-				taskFinishEvent.invoke(t)
-				break
-			case 'task_start':
-				taskStartEvent.invoke(t)
-				break
-		}
-	}
-
-	taskFinishEvent.add(
-		action((p) => {
-			taskStore.tasks.find((val) => val.id === p.task_id)!.running = false
-		})
-	)
 }

@@ -27,10 +27,9 @@ import { FC, useEffect } from 'react'
 import { TaskTable } from './components/TaskTable'
 import Login from './pages/login'
 import { GlobalModal } from './components/GlobalModal'
-import { TaskList } from './components/TaskList'
+import { TaskList } from './pages/task-list/TaskList'
 import { GlobalToast } from 'components/Toast'
 import { TestDataChangeToggle } from 'components/TestDataChangeToggle'
-import { initEventListen } from 'utils/datafetch'
 
 const FirstSidbar: FC = () => {
 	return (
@@ -104,9 +103,6 @@ const FirstSidbar: FC = () => {
 }
 
 function App() {
-	useEffect(() => {
-		initEventListen()
-	}, [])
 	return (
 		<CssVarsProvider>
 			<CssBaseline />
@@ -114,13 +110,14 @@ function App() {
 				sx={{
 					display: 'flex',
 					width: '100%',
-					height: '100%',
+					height: '100vh',
 				}}
 			>
 				<FirstSidbar />
 				{/* <TaskTable /> */}
 				<TaskList />
-				<Login />
+
+				{/* <Login /> */}
 				<GlobalModal />
 			</Box>
 			<GlobalToast />
