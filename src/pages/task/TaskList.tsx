@@ -4,6 +4,7 @@ import { SessionInter, SessionOutputInter, TaskInter } from '../../Interface'
 import {
 	Box,
 	Button,
+	Chip,
 	CircularProgress,
 	Divider,
 	FormControl,
@@ -15,13 +16,15 @@ import {
 	ListItem,
 	ListItemButton,
 	ListItemDecorator,
+	Menu,
+	MenuItem,
 	Sheet,
 	Stack,
 	Textarea,
 	Tooltip,
 	Typography,
 } from '@mui/joy'
-import { FC, useState, useEffect, useMemo } from 'react'
+import { FC, useState, useEffect, useMemo, useRef } from 'react'
 
 import PlayArrowIcon from '@mui/icons-material/PlayArrow'
 import CancelIcon from '@mui/icons-material/Cancel'
@@ -33,6 +36,10 @@ import { showConfirm } from '../../components/GlobalModal'
 import { selectSession, selectTask, taskStore } from 'store/taskstore'
 import { observer } from 'mobx-react-lite'
 import { websocketBaseUrl } from 'utils/http'
+import { ContextMenu } from 'components/ContextMenu'
+
+import DoneIcon from '@mui/icons-material/Done'
+import HourglassBottomIcon from '@mui/icons-material/HourglassBottom'
 
 const SessionListItem: FC = observer(() => {
 	const [output, setOutput] = useState<SessionOutputInter>()
@@ -128,7 +135,7 @@ const TaskListItem: FC = observer(() => {
 		<Stack direction={'row'} gap={2} sx={{ height: '100%', width: '100%' }}>
 			<Box
 				height={'100%'}
-				width={'50%'}
+				width={'40%'}
 				display={'flex'}
 				flexDirection={'column'}
 			>
@@ -139,7 +146,7 @@ const TaskListItem: FC = observer(() => {
 				<Typography level='body3'>
 					create time: {formatSeconds(selectTask.task!.create_time)}
 				</Typography>
-				<Typography>{task.crontab_exp}</Typography>
+				<Typography level='body3'>crontab exp: {task.crontab_exp}</Typography>
 				<FormControl>
 					<FormLabel>Command</FormLabel>
 					<Textarea
@@ -225,13 +232,9 @@ const TaskListItem: FC = observer(() => {
 									>
 										<ListItemDecorator>
 											{val.running ? (
-												<CircularProgress
-													size='sm'
-													thickness={2}
-													color='neutral'
-												/>
+												<HourglassBottomIcon />
 											) : (
-												<TaskAltIcon />
+												<TaskAltIcon color='success' />
 											)}
 										</ListItemDecorator>
 										<Typography
@@ -264,6 +267,8 @@ const TaskListItem: FC = observer(() => {
 
 export const TaskList: FC = observer(() => {
 	const [filterTxt, setFilterTxt] = useState('')
+	const [menuOpen, setMenuOpen] = useState(false)
+	const [pos, setPos] = useState([0, 0])
 
 	return (
 		<Box
@@ -339,21 +344,27 @@ export const TaskList: FC = observer(() => {
 													}}
 													variant={selected ? 'soft' : undefined}
 													color={selected ? 'neutral' : undefined}
+													onContextMenu={(ev) => {
+														ev.preventDefault()
+														setMenuOpen(true)
+														setPos([ev.clientX, ev.clientY])
+													}}
 												>
 													<ListItemDecorator>
 														{val.running ? (
-															<CircularProgress
-																size='sm'
-																thickness={2}
-																color='neutral'
-															/>
+															<HourglassBottomIcon color='warning' />
 														) : (
-															<TaskAltIcon />
+															<DoneIcon color='success' />
 														)}
 													</ListItemDecorator>
 													<Tooltip title={val.command}>
 														<Stack>
-															<Typography level='body1'>{val.name}</Typography>
+															<Typography
+																level='body2'
+																textColor={'text.primary'}
+															>
+																{val.name}
+															</Typography>
 															<Typography level='body3'>{val.id}</Typography>
 														</Stack>
 													</Tooltip>
@@ -367,6 +378,30 @@ export const TaskList: FC = observer(() => {
 					<Divider orientation='vertical' />
 					{selectTask.task !== undefined ? <TaskListItem /> : null}
 				</Stack>
+				<ContextMenu
+					open={menuOpen}
+					left={pos[0]}
+					top={pos[1]}
+					onClose={() => {
+						setMenuOpen(false)
+					}}
+					menuItems={
+						<>
+							<MenuItem>
+								<ListItemDecorator>
+									<PlayArrowIcon fontSize={'large'} />
+								</ListItemDecorator>
+								Run Task
+							</MenuItem>
+							<MenuItem color='danger'>
+								<ListItemDecorator>
+									<DeleteIcon />
+								</ListItemDecorator>
+								Delete Task
+							</MenuItem>
+						</>
+					}
+				/>
 			</Sheet>
 		</Box>
 	)
