@@ -8,6 +8,7 @@ import {
 	Divider,
 	FormControl,
 	FormLabel,
+	IconButton,
 	Input,
 	LinearProgress,
 	List,
@@ -20,7 +21,7 @@ import {
 	Tooltip,
 	Typography,
 } from '@mui/joy'
-import { FC, useState, useEffect } from 'react'
+import { FC, useState, useEffect, useMemo } from 'react'
 
 import PlayArrowIcon from '@mui/icons-material/PlayArrow'
 import CancelIcon from '@mui/icons-material/Cancel'
@@ -29,26 +30,32 @@ import DeleteIcon from '@mui/icons-material/Delete'
 import { toast } from '../../components/Toast'
 import { getSessoionOutput, getSessionList } from 'utils/datafetch'
 import { showConfirm } from '../../components/GlobalModal'
-import { taskStore } from 'store/taskstore'
+import { selectSession, selectTask, taskStore } from 'store/taskstore'
 import { observer } from 'mobx-react-lite'
 import { websocketBaseUrl } from 'utils/http'
 
-const SessionListItem: FC<{ session: SessionInter }> = ({ session }) => {
+const SessionListItem: FC = observer(() => {
 	const [output, setOutput] = useState<SessionOutputInter>()
+	const sessionid = useMemo(() => {
+		return selectSession.session?.id
+	}, [selectSession.session])
+	const session = useMemo(() => {
+		return selectSession.session!
+	}, [selectSession.session])
 	useEffect(() => {
-		getSessoionOutput(session.id).then((data) => {
+		getSessoionOutput(selectSession.session!.id).then((data) => {
 			setOutput(data)
 		})
-	}, [session.id])
+	}, [sessionid])
 	useEffect(() => {
-		if (!session.running) return
+		if (!selectSession.session!.running) return
 
 		const ws = new WebSocket(
-			`${websocketBaseUrl}/task/session/communicate?session_id=${session.id}`
+			`${websocketBaseUrl}/task/session/communicate?session_id=${sessionid}`
 		)
 		ws.onmessage = (ev) => {
 			const tars = String(ev.data)
-			if (tars === `task-${session.id} over`) {
+			if (tars === `task-${sessionid} over`) {
 				ws.close()
 				return
 			}
@@ -72,7 +79,7 @@ const SessionListItem: FC<{ session: SessionInter }> = ({ session }) => {
 		return () => {
 			ws.close()
 		}
-	}, [session.id, session.running])
+	}, [sessionid, session.running])
 	return (
 		<Box width={'100%'} display={'flex'} flexDirection={'column'} gap={1}>
 			<Typography
@@ -111,20 +118,12 @@ const SessionListItem: FC<{ session: SessionInter }> = ({ session }) => {
 			</Stack>
 		</Box>
 	)
-}
+})
 
-const TaskListItem: FC<{ task: TaskInter }> = observer(({ task }) => {
-	const [sessions, setSession] = useState<SessionInter[]>([])
-	const [curSess, setCurSess] = useState<SessionInter>()
-	useEffect(() => {
-		getSessionList(task.id).then((data) => {
-			data.sort((l, r) => {
-				return r.start_time - l.start_time
-			})
-			setSession(data)
-			setCurSess(data[0])
-		})
-	}, [task.id])
+const TaskListItem: FC = observer(() => {
+	const task = useMemo(() => {
+		return selectTask.task!
+	}, [])
 	return (
 		<Stack direction={'row'} gap={2} sx={{ height: '100%', width: '100%' }}>
 			<Box
@@ -133,26 +132,30 @@ const TaskListItem: FC<{ task: TaskInter }> = observer(({ task }) => {
 				display={'flex'}
 				flexDirection={'column'}
 			>
-				<Typography level='h3'>{task.name}</Typography>
-				<Stack direction={'row'} gap={2}>
-					<Typography level='body3'>
-						{formatSeconds(task.create_time)}
-					</Typography>
-					<Typography level='body3'>{task.id}</Typography>
-				</Stack>
+				<Typography level='h3'>{selectTask.task!.name}</Typography>
 
+				<Typography level='body3'>{selectTask.task!.id}</Typography>
+
+				<Typography level='body3'>
+					create time: {formatSeconds(selectTask.task!.create_time)}
+				</Typography>
+				<Typography>{task.crontab_exp}</Typography>
 				<FormControl>
 					<FormLabel>Command</FormLabel>
-					<Textarea value={task.command} variant='soft' color='primary' />
+					<Textarea
+						value={selectTask.task!.command}
+						variant='soft'
+						color='primary'
+					/>
 				</FormControl>
 				<Divider sx={{ my: 1, mx: 1 }} />
 				<Stack direction={'row'} gap={1}>
-					{!task.running ? (
+					{!selectTask.task!.running ? (
 						<Button
 							variant='soft'
 							startDecorator={<PlayArrowIcon />}
 							onClick={() => {
-								taskStore.run(task.id)
+								taskStore.run(selectTask.task!.id)
 							}}
 						>
 							Run
@@ -163,10 +166,10 @@ const TaskListItem: FC<{ task: TaskInter }> = observer(({ task }) => {
 							startDecorator={<CancelIcon />}
 							color='warning'
 							onClick={() => {
-								taskStore.stop(task.id)
+								taskStore.stop(selectTask.task!.id)
 								toast.alert({
 									title: 'stop!',
-									subtitle: `${task.id}`,
+									subtitle: `${selectTask.task!.id}`,
 									color: 'success',
 								})
 							}}
@@ -178,13 +181,15 @@ const TaskListItem: FC<{ task: TaskInter }> = observer(({ task }) => {
 						variant='soft'
 						startDecorator={<DeleteIcon />}
 						color='danger'
-						disabled={task.running}
+						disabled={selectTask.task!.running}
 						onClick={() => {
 							showConfirm(
 								'Confirm Delete',
-								`Make sure to delete ${task.name}-${task.id}?`,
+								`Make sure to delete ${selectTask.task!.name}-${
+									selectTask.task!.id
+								}?`,
 								() => {
-									taskStore.delete(task.id)
+									taskStore.delete(selectTask.task!.id)
 								}
 							)
 						}}
@@ -203,18 +208,20 @@ const TaskListItem: FC<{ task: TaskInter }> = observer(({ task }) => {
 					}}
 				>
 					<List sx={{ mt: 1 }}>
-						{sessions.map((val) => {
+						{selectTask.sessions?.map((val) => {
 							return (
 								<ListItem key={nanoid()}>
 									<ListItemButton
-										selected={curSess?.id === val.id}
+										selected={selectSession.session?.id === val.id}
 										onClick={() => {
-											setCurSess(val)
+											selectSession.setCurSession(val)
 										}}
 										sx={{
 											borderRadius: 'sm',
 										}}
-										variant={curSess?.id === val.id ? 'soft' : 'plain'}
+										variant={
+											selectSession.session?.id === val.id ? 'soft' : 'plain'
+										}
 									>
 										<ListItemDecorator>
 											{val.running ? (
@@ -245,10 +252,10 @@ const TaskListItem: FC<{ task: TaskInter }> = observer(({ task }) => {
 					</List>
 				</Sheet>
 			</Box>
-			{curSess ? (
+			{selectSession.session ? (
 				<>
 					<Divider orientation='vertical' />
-					<SessionListItem session={curSess} />
+					<SessionListItem />
 				</>
 			) : null}
 		</Stack>
@@ -256,7 +263,6 @@ const TaskListItem: FC<{ task: TaskInter }> = observer(({ task }) => {
 })
 
 export const TaskList: FC = observer(() => {
-	const [curTask, setCurTask] = useState<TaskInter>(taskStore.tasks[0])
 	const [filterTxt, setFilterTxt] = useState('')
 
 	return (
@@ -320,18 +326,19 @@ export const TaskList: FC = observer(() => {
 										)
 									})
 									.map((val) => {
+										const selected = selectTask.task?.id === val.id
 										return (
 											<ListItem key={nanoid()}>
 												<ListItemButton
-													selected={curTask?.id === val.id}
+													selected={selected}
 													onClick={() => {
-														setCurTask(val)
+														selectTask.setCurTask(val)
 													}}
 													sx={{
 														borderRadius: 'sm',
 													}}
-													variant={curTask?.id === val.id ? 'soft' : undefined}
-													color={curTask?.id === val.id ? 'neutral' : undefined}
+													variant={selected ? 'soft' : undefined}
+													color={selected ? 'neutral' : undefined}
 												>
 													<ListItemDecorator>
 														{val.running ? (
@@ -358,7 +365,7 @@ export const TaskList: FC = observer(() => {
 						</Sheet>
 					</Sheet>
 					<Divider orientation='vertical' />
-					{curTask !== undefined ? <TaskListItem task={curTask} /> : null}
+					{selectTask.task !== undefined ? <TaskListItem /> : null}
 				</Stack>
 			</Sheet>
 		</Box>

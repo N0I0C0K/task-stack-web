@@ -1,5 +1,11 @@
 import './App.css'
-import { Outlet } from 'react-router-dom'
+import {
+	Outlet,
+	useLocation,
+	useNavigate,
+	useNavigation,
+	useParams,
+} from 'react-router-dom'
 import {
 	CssVarsProvider,
 	CssBaseline,
@@ -12,26 +18,51 @@ import {
 	Avatar,
 	Tooltip,
 } from '@mui/joy'
-import {
-	Apps,
-	StackedLineChart,
-	Person,
-	FormatListNumbered,
-} from '@mui/icons-material'
+import { StackedLineChart, Person } from '@mui/icons-material'
 import FormatListBulletedIcon from '@mui/icons-material/FormatListBulleted'
 import HistoryIcon from '@mui/icons-material/History'
 import ModeToggle from './components/ModeToggle'
 import SettingsIcon from '@mui/icons-material/Settings'
 
-import { FC, useEffect } from 'react'
-import { TaskTable } from './components/TaskTable'
+import { FC, useEffect, useState } from 'react'
 import Login from './pages/login'
 import { GlobalModal } from './components/GlobalModal'
-import { TaskList } from './pages/task-list/TaskList'
 import { GlobalToast } from 'components/Toast'
 import { TestDataChangeToggle } from 'components/TestDataChangeToggle'
+import { EventListenrToggle } from 'components/EventListenerToggle'
+import { nanoid } from 'nanoid'
+import { CustomAvatar } from 'components/CustomAvatar'
+
+const tabs: {
+	key: string
+	icon: React.ReactElement
+	tooltip: string
+}[] = [
+	{
+		key: '/task',
+		icon: <FormatListBulletedIcon />,
+		tooltip: 'tasks',
+	},
+	{
+		key: '/session',
+		icon: <HistoryIcon />,
+		tooltip: 'history sessions',
+	},
+	{
+		key: '/setting',
+		icon: <SettingsIcon />,
+		tooltip: 'settings',
+	},
+]
 
 const FirstSidbar: FC = () => {
+	const loc = useLocation()
+	const [curTab, setCurTab] = useState('/task')
+	useEffect(() => {
+		setCurTab(loc.pathname)
+	}, [loc])
+	const goto = useNavigate()
+
 	return (
 		<Sheet
 			variant='soft'
@@ -70,34 +101,29 @@ const FirstSidbar: FC = () => {
 				}}
 			/>
 			<List sx={{ '--ListItem-radius': '8px', '--List-gap': '12px' }}>
-				<ListItem>
-					<ListItemButton selected variant='solid' color='primary'>
-						<Tooltip title='tasks'>
-							<FormatListBulletedIcon />
-						</Tooltip>
-					</ListItemButton>
-				</ListItem>
-				<ListItem>
-					<ListItemButton>
-						<Tooltip title='history session'>
-							<HistoryIcon />
-						</Tooltip>
-					</ListItemButton>
-				</ListItem>
-				<ListItem>
-					<ListItemButton>
-						<Tooltip title='settings'>
-							<SettingsIcon />
-						</Tooltip>
-					</ListItemButton>
-				</ListItem>
+				{tabs.map((val) => {
+					const selected = val.key === curTab
+					return (
+						<ListItem key={nanoid()}>
+							<ListItemButton
+								selected={selected}
+								variant={selected ? 'solid' : undefined}
+								color={selected ? 'primary' : undefined}
+								onClick={() => {
+									goto(val.key)
+								}}
+							>
+								<Tooltip title={val.tooltip}>{val.icon}</Tooltip>
+							</ListItemButton>
+						</ListItem>
+					)
+				})}
 			</List>
 			<Divider />
 			<TestDataChangeToggle />
 			<ModeToggle />
-			<Avatar variant='outlined'>
-				<Person />
-			</Avatar>
+			<EventListenrToggle />
+			<CustomAvatar />
 		</Sheet>
 	)
 }
@@ -115,9 +141,9 @@ function App() {
 			>
 				<FirstSidbar />
 				{/* <TaskTable /> */}
-				<TaskList />
+				<Outlet />
 
-				{/* <Login /> */}
+				<Login />
 				<GlobalModal />
 			</Box>
 			<GlobalToast />

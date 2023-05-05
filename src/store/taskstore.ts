@@ -60,16 +60,34 @@ export const selectTask = observable<{
 	task?: TaskInter
 	sessions?: SessionInter[]
 	setCurTask: (tar: TaskInter) => void
+	refresh: () => void
 }>({
 	task: undefined,
 	sessions: undefined,
 	setCurTask(tar) {
+		if (tar.id === this.task?.id) return
 		this.task = tar
-		getSessionList(tar.id).then(
+		this.refresh()
+	},
+	refresh() {
+		getSessionList(this.task!.id).then(
 			action((data) => {
 				this.sessions = data
+				this.sessions.sort((l, r) => r.start_time - l.start_time)
+				selectSession.setCurSession(this.sessions[0])
 			})
 		)
+	},
+})
+
+export const selectSession = observable<{
+	session?: SessionInter
+	setCurSession: (tar: SessionInter) => void
+}>({
+	session: undefined,
+	setCurSession(tar) {
+		if (tar.id === this.session?.id) return
+		this.session = tar
 	},
 })
 

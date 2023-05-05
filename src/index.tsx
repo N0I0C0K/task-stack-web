@@ -4,23 +4,32 @@ import './index.css'
 import App from './App'
 
 import { createBrowserRouter, RouterProvider } from 'react-router-dom'
-import Home from './pages/home/home'
+import { TaskList } from 'pages/task/TaskList'
+import { SessionList } from 'pages/session/SessionList'
 
 const router = createBrowserRouter([
-  {
-    path: '/',
-    element: <App />,
-    children: [
-      {
-        path: 'task',
-        element: <p>task</p>,
-      },
-      {
-        path: '',
-        element: <Home />,
-      },
-    ],
-  },
+	{
+		path: '/',
+		element: <App />,
+		children: [
+			{
+				path: '',
+				element: <TaskList />,
+			},
+			{
+				path: 'task',
+				element: <TaskList />,
+			},
+			{
+				path: 'session',
+				element: <SessionList />,
+			},
+			{
+				path: 'setting',
+				element: <p>setting</p>,
+			},
+		],
+	},
 ])
 
 const root = ReactDOM.createRoot(document.getElementById('root') as HTMLElement)

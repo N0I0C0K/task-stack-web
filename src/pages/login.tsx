@@ -3,11 +3,13 @@ import { Sheet, Modal, Typography, Input, Button } from '@mui/joy'
 import { http, setToken } from '../utils/http'
 import { taskStore } from 'store/taskstore'
 import { initEventListen } from 'utils/eventlisten'
+import { isUseTestData } from 'utils/datafetch'
 
 const Login: FC = () => {
 	const [open, setOpen] = useState(false)
 	const [key, setkey] = useState('')
 	useEffect(() => {
+		if (isUseTestData()) return
 		http
 			.get('/auth/beat')
 			.then(({ status }) => {
@@ -73,7 +75,7 @@ const Login: FC = () => {
 									if (data.code === 200) {
 										setToken(data.token)
 										setOpen(false)
-										initEventListen()
+										// initEventListen()
 										taskStore.refresh()
 									}
 								})

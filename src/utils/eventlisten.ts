@@ -1,6 +1,6 @@
 import { toast } from 'components/Toast'
 import { action } from 'mobx'
-import { taskStore } from 'store/taskstore'
+import { selectTask, taskStore } from 'store/taskstore'
 import { websocketBaseUrl, getToken } from './http'
 
 type Callback<T> = (p: T) => void
@@ -9,7 +9,6 @@ class Event<T> {
 	private actions: Set<Callback<T>> = new Set()
 
 	invoke(p: T): void {
-		console.log(p)
 		for (const func of this.actions) {
 			func(p)
 		}
@@ -36,15 +35,24 @@ interface MessageType {
 const taskStartEvent = new Event<MessageType>()
 const taskFinishEvent = new Event<MessageType>()
 
+export var connectState = false
+
+var websocket: WebSocket | undefined = undefined
+
 export const initEventListen = () => {
 	console.log('init EventListen')
-	const websocket = new WebSocket(
+	websocket = new WebSocket(
 		`${websocketBaseUrl}/task/listener?token=${getToken()}`
 	)
 
 	taskFinishEvent.clear()
 	taskStartEvent.clear()
-
+	websocket.onclose = () => {
+		connectState = false
+	}
+	websocket.onopen = () => {
+		connectState = true
+	}
 	websocket.onmessage = (data) => {
 		const t = JSON.parse(String(data.data)) as MessageType & {
 			event: 'task_start' | 'task_finish'
@@ -69,6 +77,10 @@ export const initEventListen = () => {
 				subtitle: `${task.name} [${task.command}] finsih`,
 				color: 'info',
 			})
+
+			if (task.id === selectTask.task?.id) {
+				selectTask.refresh()
+			}
 		})
 	)
 
@@ -82,6 +94,21 @@ export const initEventListen = () => {
 				subtitle: `${task.name} [${task.command}] start`,
 				color: 'info',
 			})
+
+			if (task.id === selectTask.task?.id) {
+				selectTask.refresh()
+			}
 		})
 	)
+	return true
+}
+
+export const clearEventListener = () => {
+	console.log('clear event listener')
+	websocket?.send('disconnect')
+	websocket?.close()
+	taskFinishEvent.clear()
+	taskStartEvent.clear()
+	connectState = false
+	return true
 }
