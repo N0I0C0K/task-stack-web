@@ -1,6 +1,7 @@
 import { nanoid } from 'nanoid'
 import { TaskInter } from '../../Interface'
 import {
+	Badge,
 	Box,
 	Button,
 	Divider,
@@ -25,9 +26,8 @@ import { selectTask, taskStore } from 'store/taskstore'
 import { observer } from 'mobx-react-lite'
 import { ContextMenu } from 'components/ContextMenu'
 
-import DoneIcon from '@mui/icons-material/Done'
-import HourglassBottomIcon from '@mui/icons-material/HourglassBottom'
 import AddIcon from '@mui/icons-material/Add'
+import { showModalFC } from 'components/GlobalModal'
 
 export const TaskList: FC = observer(() => {
 	const [filterTxt, setFilterTxt] = useState('')
@@ -51,7 +51,36 @@ export const TaskList: FC = observer(() => {
 					color='neutral'
 					variant='outlined'
 					startDecorator={<AddIcon />}
-					onClick={() => {}}
+					onClick={() => {
+						console.log(1)
+
+						showModalFC(
+							(close) => {
+								return (
+									<>
+										<Box display={'flex'} flexDirection={'column'} gap={1}>
+											<Typography level='h3' sx={{ mb: 2 }}>
+												Create Task
+											</Typography>
+											<Input placeholder='task name' />
+											<Input placeholder='command/executable' />
+											<Input placeholder='crontab exp' />
+											<Button
+												variant='soft'
+												color='info'
+												onClick={() => {
+													close()
+												}}
+											>
+												Create!
+											</Button>
+										</Box>
+									</>
+								)
+							},
+							() => {}
+						)
+					}}
 				>
 					Create Task
 				</Button>
@@ -126,21 +155,30 @@ export const TaskList: FC = observer(() => {
 														setPos([ev.clientX, ev.clientY])
 													}}
 												>
-													<ListItemDecorator>
+													{/* <ListItemDecorator>
 														{val.running ? (
 															<HourglassBottomIcon color='warning' />
 														) : (
 															<DoneIcon color='success' />
 														)}
-													</ListItemDecorator>
-
+													</ListItemDecorator> */}
 													<Stack>
-														<Typography
-															level='body2'
-															textColor={'text.primary'}
+														<Badge
+															invisible={!val.running}
+															size='sm'
+															color='warning'
+															anchorOrigin={{
+																vertical: 'top',
+																horizontal: 'left',
+															}}
 														>
-															{val.name}
-														</Typography>
+															<Typography
+																level='body2'
+																textColor={'text.primary'}
+															>
+																{val.name}
+															</Typography>
+														</Badge>
 														<Typography level='body3'>
 															{val.command.substring(0, 50)}...
 														</Typography>

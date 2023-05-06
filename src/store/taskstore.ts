@@ -56,6 +56,10 @@ export const taskStore = observable<TaskStoreInter>({
 	},
 })
 
+export const sessionStore = observable<{ sessions: SessionInter[] }>({
+	sessions: [],
+})
+
 export const selectTask = observable<{
 	task?: TaskInter
 	sessions?: SessionInter[]

@@ -43,9 +43,7 @@ export const GlobalModal: FC = observer(() => {
 })
 
 export const showModal = (element: ReactElement, onClose: () => void) => {
-	if (setGlobalOpen === undefined || setGlobalModalChild === undefined) return
-	setGlobalOpen(true)
-	setGlobalModalChild(element)
+	globalModalStore.open(element, onClose)
 }
 
 const globalModalStore = observable<{
@@ -69,6 +67,20 @@ const globalModalStore = observable<{
 		this.onClose?.()
 	},
 })
+
+export const showModalFC = (
+	fcelement: (close: () => void) => ReactElement,
+	onClose: () => void
+) => {
+	globalModalStore.open(
+		fcelement(globalModalStore.close.bind(globalModalStore)),
+		onClose
+	)
+}
+
+export const closeModal = () => {
+	globalModalStore.close()
+}
 
 export const showConfirm = (
 	title: string,

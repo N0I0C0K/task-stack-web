@@ -85,7 +85,7 @@ export const SessionListItem: FC = observer(() => {
 				<Textarea
 					value={output?.output}
 					color='success'
-					variant='soft'
+					variant='outlined'
 					maxRows={20}
 				/>
 			</Stack>
