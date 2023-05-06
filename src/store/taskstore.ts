@@ -28,7 +28,7 @@ export const taskStore = observable<TaskStoreInter>({
 		const idx = this.tasks.findIndex((val) => {
 			return val.id === task_id
 		})
-		if (idx === -1) return
+		if (idx === -1 || this.tasks[idx].running) return
 
 		delTask(task_id).then((res) => {
 			if (res) this.tasks.splice(idx, 1)

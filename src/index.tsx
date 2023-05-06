@@ -4,8 +4,8 @@ import './index.css'
 import App from './App'
 
 import { createBrowserRouter, RouterProvider } from 'react-router-dom'
-import { TaskList } from 'pages/task/TaskList'
-import { SessionList } from 'pages/session/SessionList'
+import { TaskList } from 'pages/task-list/TaskList'
+import { SessionList } from 'pages/session-list/SessionList'
 
 const router = createBrowserRouter([
 	{

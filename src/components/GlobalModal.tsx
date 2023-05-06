@@ -48,7 +48,7 @@ export const showModal = (element: ReactElement, onClose: () => void) => {
 	setGlobalModalChild(element)
 }
 
-export const globalModalStore = observable<{
+const globalModalStore = observable<{
 	isOpen: boolean
 	onClose?: () => void
 	children: ReactElement
