@@ -128,3 +128,30 @@ export const stopTask = async (task_id: string): Promise<boolean> => {
 	})
 	return res.data.success
 }
+
+interface AllSessionInter {
+	sessions: SessionInter[]
+	all_nums: number
+}
+
+export const getAlllSession = async (
+	start: number,
+	num: number
+): Promise<AllSessionInter> => {
+	return getTestAlllSession(start, num)
+}
+
+const getTestAlllSession = (start: number, num: number): AllSessionInter => {
+	const t = Array.from({ length: num }, (it, idx) => {
+		return {
+			id: faker.random.alphaNumeric(16),
+			start_time: faker.date.past().getTime() / 1000,
+			finish_time: faker.date.past().getTime() / 1000,
+			task_id: faker.random.alphaNumeric(16),
+			command: 'test fake command',
+			success: faker.datatype.boolean(),
+			running: faker.datatype.boolean(),
+		}
+	})
+	return { all_nums: t.length, sessions: t }
+}

@@ -1,7 +1,13 @@
-import { Box, Input, List, Sheet, Typography } from '@mui/joy'
+import { Box, Input, List, ListItem, Sheet, Typography } from '@mui/joy'
+import { observer } from 'mobx-react-lite'
 import { FC } from 'react'
+import { sessionStore } from 'store/taskstore'
+import React from 'react'
 
-export const SessionList: FC = () => {
+export const SessionList: FC = observer(() => {
+	React.useEffect(() => {
+		sessionStore.load(30)
+	}, [])
 	return (
 		<Box
 			p={3}
@@ -18,13 +24,30 @@ export const SessionList: FC = () => {
 					borderRadius: 'sm',
 					width: '100%',
 					flexGrow: 1,
-					overflow: 'auto',
 					p: 2,
+					display: 'flex',
+					flexDirection: 'column',
+					overflow: 'auto',
 				}}
 			>
 				<Input placeholder='filter, can filter command | name | time' />
-				<List></List>
+				<Sheet sx={{ overflow: 'auto', flexGrow: 1, mt: 3 }}>
+					<List>
+						{sessionStore.sessions.map((val) => {
+							return (
+								<ListItem
+									variant='outlined'
+									sx={{ my: 0.5, borderRadius: 'sm' }}
+								>
+									<Box>
+										<Typography fontSize={'20px'}>{val.task_id}</Typography>
+									</Box>
+								</ListItem>
+							)
+						})}
+					</List>
+				</Sheet>
 			</Sheet>
 		</Box>
 	)
-}
+})

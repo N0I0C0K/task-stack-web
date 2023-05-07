@@ -2,6 +2,7 @@ import { action, observable } from 'mobx'
 import { SessionInter, TaskInter } from '../Interface'
 import {
 	delTask,
+	getAlllSession,
 	getSessionList,
 	getTaskList,
 	runTask,
@@ -56,8 +57,23 @@ export const taskStore = observable<TaskStoreInter>({
 	},
 })
 
-export const sessionStore = observable<{ sessions: SessionInter[] }>({
+export const sessionStore = observable<{
+	sessions: SessionInter[]
+	loadNums: number
+	allNums: number
+	load: (nums: number) => void
+}>({
 	sessions: [],
+	allNums: 0,
+	loadNums: 0,
+	load(nums) {
+		getAlllSession(this.loadNums, nums).then(
+			action((val) => {
+				this.allNums = val.all_nums
+				this.sessions = val.sessions
+			})
+		)
+	},
 })
 
 export const selectTask = observable<{

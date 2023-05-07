@@ -17,6 +17,9 @@ import {
 	Divider,
 	Avatar,
 	Tooltip,
+	TabList,
+	Tabs,
+	Tab,
 } from '@mui/joy'
 import { StackedLineChart, Person } from '@mui/icons-material'
 import FormatListBulletedIcon from '@mui/icons-material/FormatListBulleted'
@@ -141,6 +144,7 @@ function App() {
 			>
 				<FirstSidbar />
 				{/* <TaskTable /> */}
+
 				<Outlet />
 
 				<Login />
