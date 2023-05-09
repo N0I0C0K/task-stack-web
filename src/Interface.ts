@@ -7,8 +7,16 @@ export interface TaskInter {
 	command: string
 	active: boolean
 	create_time: number
+	last_exec_time: number
 	crontab_exp?: string
 	running?: boolean
+}
+
+export interface CreateTaskInter {
+	name: string
+	command: string
+	crontab_exp?: string
+	invoke_once?: boolean
 }
 
 export interface SessionInter {

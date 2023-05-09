@@ -28,6 +28,7 @@ import { ContextMenu } from 'components/ContextMenu'
 
 import AddIcon from '@mui/icons-material/Add'
 import { showModalFC } from 'components/GlobalModal'
+import { NewTaskModal } from './NewTask'
 
 export const TaskList: FC = observer(() => {
 	const [filterTxt, setFilterTxt] = useState('')
@@ -56,27 +57,7 @@ export const TaskList: FC = observer(() => {
 
 						showModalFC(
 							(close) => {
-								return (
-									<>
-										<Box display={'flex'} flexDirection={'column'} gap={1}>
-											<Typography level='h3' sx={{ mb: 2 }}>
-												Create Task
-											</Typography>
-											<Input placeholder='task name' />
-											<Input placeholder='command/executable' />
-											<Input placeholder='crontab exp' />
-											<Button
-												variant='soft'
-												color='info'
-												onClick={() => {
-													close()
-												}}
-											>
-												Create!
-											</Button>
-										</Box>
-									</>
-								)
+								return <NewTaskModal onClick={close} />
 							},
 							() => {}
 						)

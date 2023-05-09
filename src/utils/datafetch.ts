@@ -5,6 +5,7 @@ import {
 	HttpBase,
 	TaskInter,
 	SessionInter,
+	CreateTaskInter,
 } from 'Interface'
 import { nanoid } from 'nanoid'
 import { action } from 'mobx'
@@ -12,6 +13,33 @@ import { taskStore } from 'store/taskstore'
 import { toast } from 'components/Toast'
 
 var useTestData = false
+
+const getAFakeTask = (): TaskInter => {
+	return {
+		id: faker.random.alphaNumeric(16),
+		name: faker.name.jobTitle(),
+		command: faker.lorem.sentence(),
+		active: faker.datatype.boolean(),
+		create_time: faker.date.past().getTime() / 1000,
+		last_exec_time: faker.date.past().getTime() / 1000,
+		crontab_exp: faker.datatype.boolean()
+			? faker.date.future().toISOString()
+			: undefined,
+		running: faker.datatype.boolean(),
+	}
+}
+
+const getAFakeSession = (): SessionInter => {
+	return {
+		id: faker.random.alphaNumeric(16),
+		start_time: faker.date.past().getTime() / 1000,
+		finish_time: faker.date.past().getTime() / 1000,
+		task_id: faker.random.alphaNumeric(16),
+		command: 'test fake command',
+		success: faker.datatype.boolean(),
+		running: faker.datatype.boolean(),
+	}
+}
 
 export const setTestData = (test: boolean) => {
 	useTestData = test
@@ -58,17 +86,7 @@ export const getTaskList = async (): Promise<TaskInter[]> => {
 
 const getTestTaskList = async (): Promise<TaskInter[]> => {
 	return Array.from({ length: 30 }, (it, idx) => {
-		return {
-			id: faker.random.alphaNumeric(16),
-			name: faker.name.jobTitle(),
-			command: faker.lorem.sentence(),
-			active: faker.datatype.boolean(),
-			create_time: faker.date.past().getTime() / 1000,
-			crontab_exp: faker.datatype.boolean()
-				? faker.date.future().toISOString()
-				: undefined,
-			running: faker.datatype.boolean(),
-		}
+		return getAFakeTask()
 	})
 }
 
@@ -85,15 +103,7 @@ export const getSessionList = async (
 
 const getTestSessionList = async (task_id: string): Promise<SessionInter[]> => {
 	return Array.from({ length: 20 }, (it, idx) => {
-		return {
-			id: faker.random.alphaNumeric(16),
-			start_time: faker.date.past().getTime() / 1000,
-			finish_time: faker.date.past().getTime() / 1000,
-			task_id: task_id,
-			command: 'test fake command',
-			success: faker.datatype.boolean(),
-			running: faker.datatype.boolean(),
-		}
+		return getAFakeSession()
 	})
 }
 
@@ -143,15 +153,18 @@ export const getAlllSession = async (
 
 const getTestAlllSession = (start: number, num: number): AllSessionInter => {
 	const t = Array.from({ length: num }, (it, idx) => {
-		return {
-			id: faker.random.alphaNumeric(16),
-			start_time: faker.date.past().getTime() / 1000,
-			finish_time: faker.date.past().getTime() / 1000,
-			task_id: faker.random.alphaNumeric(16),
-			command: 'test fake command',
-			success: faker.datatype.boolean(),
-			running: faker.datatype.boolean(),
-		}
+		return getAFakeSession()
 	})
 	return { all_nums: t.length, sessions: t }
+}
+
+export const createTask = async (form: CreateTaskInter): Promise<TaskInter> => {
+	if (useTestData) {
+		return getAFakeTask()
+	}
+	const res = await http.post<HttpBase & { task: TaskInter }>(
+		'/task/create',
+		form
+	)
+	return res.data.task
 }

@@ -1,4 +1,12 @@
-import { Box, Typography, CircularProgress, Stack, Textarea } from '@mui/joy'
+import {
+	Box,
+	Typography,
+	CircularProgress,
+	Stack,
+	Textarea,
+	FormControl,
+	FormLabel,
+} from '@mui/joy'
 import { SessionOutputInter } from 'Interface'
 import { observer } from 'mobx-react-lite'
 import { FC, useState, useMemo, useEffect } from 'react'
@@ -76,12 +84,16 @@ export const SessionListItem: FC = observer(() => {
 				{' - '}
 				{formatSeconds(session.finish_time)}
 			</Typography>
-			<Stack direction={'row'} gap={2}>
-				<Typography level='body3'>{session.id}</Typography>
+			<Stack direction={'column'}>
+				<Typography level='body3'>session id: {session.id}</Typography>
+				<FormControl>
+					<FormLabel>Command</FormLabel>
+					<Textarea value={session.command} variant='soft' color='primary' />
+				</FormControl>
 			</Stack>
 
 			<Stack gap={1}>
-				<Typography level='h4'>Output:</Typography>
+				<Typography level='body1'>Output:</Typography>
 				<Textarea
 					value={output?.output}
 					color='success'

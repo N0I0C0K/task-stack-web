@@ -1,6 +1,7 @@
 import { action, observable } from 'mobx'
-import { SessionInter, TaskInter } from '../Interface'
+import { CreateTaskInter, SessionInter, TaskInter } from '../Interface'
 import {
+	createTask,
 	delTask,
 	getAlllSession,
 	getSessionList,
@@ -8,6 +9,7 @@ import {
 	runTask,
 	stopTask,
 } from 'utils/datafetch'
+import { toast } from 'components/Toast'
 
 interface TaskStoreInter {
 	tasks: TaskInter[]
@@ -15,6 +17,7 @@ interface TaskStoreInter {
 	delete: (task_id: string) => void
 	stop: (task_id: string) => void
 	run: (task_id: string) => void
+	create: (form: CreateTaskInter) => Promise<boolean>
 }
 
 export const taskStore = observable<TaskStoreInter>({
@@ -44,6 +47,26 @@ export const taskStore = observable<TaskStoreInter>({
 				})
 			)
 		}
+	},
+	async create(form) {
+		var task: TaskInter
+		try {
+			task = await createTask(form)
+			this.tasks.push(task)
+		} catch (error) {
+			toast.alert({
+				title: 'Create task failed!',
+				subtitle: `${(error as Error).message}`,
+				color: 'danger',
+			})
+			return false
+		}
+		toast.alert({
+			title: 'Create task success',
+			subtitle: `${task.name} create success!`,
+			color: 'success',
+		})
+		return true
 	},
 	run(task_id) {
 		const tar = this.tasks.find((val) => val.id === task_id)

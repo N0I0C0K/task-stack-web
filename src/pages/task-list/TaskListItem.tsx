@@ -41,11 +41,12 @@ export const TaskListItem: FC = observer(() => {
 				flexDirection={'column'}
 			>
 				<Typography level='h3'>{selectTask.task!.name}</Typography>
-
 				<Typography level='body3'>{selectTask.task!.id}</Typography>
-
 				<Typography level='body3'>
 					create time: {formatSeconds(selectTask.task!.create_time)}
+				</Typography>
+				<Typography level='body3'>
+					last run time: {formatSeconds(selectTask.task!.last_exec_time)}
 				</Typography>
 				<Typography level='body3'>crontab exp: {task.crontab_exp}</Typography>
 				<FormControl>

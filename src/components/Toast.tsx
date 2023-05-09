@@ -13,7 +13,13 @@ import { WebSocket } from 'ws'
 
 export const GlobalToast: FC = observer(() => {
 	return (
-		<Box position={'fixed'} bottom={20} right={20} minWidth={'100px'}>
+		<Box
+			position={'fixed'}
+			bottom={20}
+			right={20}
+			minWidth={'100px'}
+			zIndex={10000}
+		>
 			<Stack gap={1} direction={'column'}>
 				{toast.alertItems.map(({ title, subtitle, color, key }) => (
 					<Alert
