@@ -24,7 +24,7 @@ export const taskStore = observable<TaskStoreInter>({
 	tasks: [],
 	refresh() {
 		getTaskList().then((data) => {
-			this.tasks = data
+			this.tasks = data.sort((l, r) => r.create_time - l.create_time)
 			selectTask.setCurTask(this.tasks[0])
 		})
 	},

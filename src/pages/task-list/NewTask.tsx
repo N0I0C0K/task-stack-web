@@ -1,4 +1,4 @@
-import { Box, Typography, Input, Button, Checkbox } from '@mui/joy'
+import { Box, Typography, Input, Button, Checkbox, Textarea } from '@mui/joy'
 import { FC, useState } from 'react'
 import { taskStore } from 'store/taskstore'
 
@@ -12,13 +12,14 @@ export const NewTaskModal: FC<{
 	const [invoke, setInvoke] = useState(false)
 	return (
 		<>
-			<Box display={'flex'} flexDirection={'column'} gap={1}>
+			<Box display={'flex'} flexDirection={'column'} gap={1} minWidth={'400px'}>
 				<Typography level='h3' sx={{ mb: 2 }}>
 					Create Task
 				</Typography>
 				<form
 					style={{
 						display: 'flex',
+
 						flexDirection: 'column',
 						gap: '10px',
 					}}
@@ -45,7 +46,7 @@ export const NewTaskModal: FC<{
 							setTaskname(ev.target.value)
 						}}
 					/>
-					<Input
+					<Textarea
 						placeholder='command/executable'
 						value={command}
 						required

@@ -64,7 +64,7 @@ const getTestSessionOutPut = async (
 ): Promise<SessionOutputInter> => {
 	return {
 		session_id: faker.random.alphaNumeric(16),
-		output: faker.lorem.paragraphs(20),
+		output: faker.lorem.paragraphs(faker.datatype.number({ min: 10, max: 70 })),
 		finish: faker.datatype.boolean(),
 	}
 }

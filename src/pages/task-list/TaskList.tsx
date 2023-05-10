@@ -4,6 +4,7 @@ import {
 	Badge,
 	Box,
 	Button,
+	Checkbox,
 	Divider,
 	Input,
 	List,
@@ -35,6 +36,8 @@ export const TaskList: FC = observer(() => {
 	const [menuOpen, setMenuOpen] = useState(false)
 	const [contextTarget, setContextTarget] = useState<TaskInter>()
 	const [pos, setPos] = useState([0, 0])
+
+	const [onlyRuning, setOnlyrunning] = useState(false)
 
 	return (
 		<Box
@@ -99,6 +102,10 @@ export const TaskList: FC = observer(() => {
 						<Typography textColor={'text.tertiary'} level='body5'>
 							find {taskStore.tasks.length} tasks
 						</Typography>
+						<Stack direction={'row'} gap={1} sx={{ m: 1 }}>
+							<Checkbox label='Run' size='sm' />
+							<Checkbox label='Fail' size='sm' />
+						</Stack>
 						<Sheet
 							sx={{
 								width: 'auto',
