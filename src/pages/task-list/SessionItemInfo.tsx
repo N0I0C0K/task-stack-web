@@ -8,6 +8,7 @@ import {
 	FormLabel,
 	IconButton,
 	Tooltip,
+	ColorPaletteProp,
 } from '@mui/joy'
 import { SessionOutputInter } from 'Interface'
 import { observer } from 'mobx-react-lite'
@@ -23,17 +24,27 @@ import ClearIcon from '@mui/icons-material/Clear'
 
 export const SessionListItem: FC = observer(() => {
 	const [output, setOutput] = useState<SessionOutputInter>()
+
 	const sessionid = useMemo(() => {
 		return selectSession.session?.id
 	}, [selectSession.session])
 	const session = useMemo(() => {
 		return selectSession.session!
 	}, [selectSession.session])
+
+	const [color, setColor] = useState<ColorPaletteProp>(
+		session?.running ? 'neutral' : session?.success ? 'success' : 'danger'
+	)
+
 	useEffect(() => {
 		getSessoionOutput(selectSession.session!.id).then((data) => {
 			setOutput(data)
 		})
-	}, [sessionid])
+		setColor(
+			session?.running ? 'neutral' : session?.success ? 'success' : 'danger'
+		)
+	}, [session, sessionid])
+
 	useEffect(() => {
 		if (!selectSession.session!.running) return
 
@@ -97,9 +108,7 @@ export const SessionListItem: FC = observer(() => {
 		<Box width={'100%'} display={'flex'} flexDirection={'column'} gap={1}>
 			<Typography
 				level='h3'
-				color={
-					session.running ? undefined : session.success ? 'success' : 'danger'
-				}
+				color={color}
 				endDecorator={
 					session.running ? (
 						<>
@@ -120,14 +129,14 @@ export const SessionListItem: FC = observer(() => {
 				<Typography level='body3'>session id: {session.id}</Typography>
 				<FormControl>
 					<FormLabel>Command</FormLabel>
-					<Textarea value={session.command} variant='soft' color='primary' />
+					<Textarea value={session.command} variant='soft' color={color} />
 				</FormControl>
 			</Stack>
 
 			<Typography level='body1'>Output:</Typography>
 			<Textarea
 				value={output?.output}
-				color={session?.success ? 'success' : 'neutral'}
+				color={color}
 				variant='soft'
 				maxRows={50}
 				endDecorator={

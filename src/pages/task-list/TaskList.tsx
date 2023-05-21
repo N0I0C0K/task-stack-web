@@ -159,7 +159,7 @@ export const TaskList: FC = observer(() => {
 														)}
 													</ListItemDecorator>
 													<Stack>
-														<Badge
+														{/* <Badge
 															invisible={!val.running}
 															size='sm'
 															color='warning'
@@ -168,13 +168,13 @@ export const TaskList: FC = observer(() => {
 																horizontal: 'left',
 															}}
 														>
-															<Typography
-																level='body2'
-																textColor={'text.primary'}
-															>
-																{val.name}
-															</Typography>
-														</Badge>
+														</Badge> */}
+														<Typography
+															level='body2'
+															textColor={'text.primary'}
+														>
+															{val.name}
+														</Typography>
 														<Typography level='body3'>
 															{val.command.substring(0, 50)}...
 														</Typography>
