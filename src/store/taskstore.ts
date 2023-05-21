@@ -92,6 +92,8 @@ export const sessionStore = observable<{
 	load(nums) {
 		getAlllSession(this.loadNums, nums).then(
 			action((val) => {
+				console.log(val)
+
 				this.allNums = val.all_nums
 				this.sessions = val.sessions
 			})
@@ -129,7 +131,7 @@ export const selectSession = observable<{
 }>({
 	session: undefined,
 	setCurSession(tar) {
-		if (tar.id === this.session?.id) return
+		if (this.session?.id === tar.id) return
 		this.session = tar
 	},
 })

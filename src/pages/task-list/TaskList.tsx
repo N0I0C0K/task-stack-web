@@ -5,6 +5,7 @@ import {
 	Box,
 	Button,
 	Checkbox,
+	CircularProgress,
 	Divider,
 	Input,
 	List,
@@ -30,6 +31,8 @@ import { ContextMenu } from 'components/ContextMenu'
 import AddIcon from '@mui/icons-material/Add'
 import { showModalFC } from 'components/GlobalModal'
 import { NewTaskModal } from './NewTask'
+
+import TaskAltIcon from '@mui/icons-material/TaskAlt'
 
 export const TaskList: FC = observer(() => {
 	const [filterTxt, setFilterTxt] = useState('')
@@ -125,7 +128,7 @@ export const TaskList: FC = observer(() => {
 									.map((val) => {
 										const selected = selectTask.task?.id === val.id
 										return (
-											<ListItem key={nanoid()}>
+											<ListItem key={val.id}>
 												<ListItemButton
 													selected={selected}
 													onClick={() => {
@@ -143,13 +146,18 @@ export const TaskList: FC = observer(() => {
 														setPos([ev.clientX, ev.clientY])
 													}}
 												>
-													{/* <ListItemDecorator>
+													<ListItemDecorator>
 														{val.running ? (
-															<HourglassBottomIcon color='warning' />
+															<CircularProgress
+																size='sm'
+																color='neutral'
+																variant='plain'
+																thickness={2}
+															/>
 														) : (
-															<DoneIcon color='success' />
+															<TaskAltIcon />
 														)}
-													</ListItemDecorator> */}
+													</ListItemDecorator>
 													<Stack>
 														<Badge
 															invisible={!val.running}

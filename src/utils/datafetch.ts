@@ -148,7 +148,19 @@ export const getAlllSession = async (
 	start: number,
 	num: number
 ): Promise<AllSessionInter> => {
-	return getTestAlllSession(start, num)
+	return useTestData
+		? getTestAlllSession(start, num)
+		: getRealAllSessionList(start, num)
+}
+
+const getRealAllSessionList = async (
+	start: number,
+	num: number
+): Promise<AllSessionInter> => {
+	const res = await http.get<HttpBase & AllSessionInter>('/task/session/all', {
+		params: { start, num },
+	})
+	return res.data
 }
 
 const getTestAlllSession = (start: number, num: number): AllSessionInter => {

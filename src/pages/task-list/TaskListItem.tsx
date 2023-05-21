@@ -119,7 +119,7 @@ export const TaskListItem: FC = observer(() => {
 					<List sx={{ mt: 1 }}>
 						{selectTask.sessions?.map((val) => {
 							return (
-								<ListItem key={nanoid()}>
+								<ListItem key={val.id}>
 									<ListItemButton
 										selected={selectSession.session?.id === val.id}
 										onClick={() => {
