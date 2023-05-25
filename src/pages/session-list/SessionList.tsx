@@ -20,36 +20,44 @@ const SessionItem: FC<{
 	session: SessionInter
 }> = observer(({ session }) => {
 	return (
-		<Card
-			variant='outlined'
+		<Sheet
+			variant='soft'
 			sx={{
+				p: 1.5,
+				mr: 1,
 				borderRadius: 'sm',
 				width: '100%',
-
 				display: 'flex',
-				flexDirection: 'column',
+				flexDirection: 'row',
+				alignItems: 'center',
 				gap: 1,
 			}}
+			color={
+				session.running ? undefined : session.success ? 'success' : 'danger'
+			}
 		>
 			<Typography
-				level='h3'
+				level='body1'
 				color={
 					session.running ? undefined : session.success ? 'success' : 'danger'
 				}
 			>
-				{session.task_id}
+				{session.task_id.toUpperCase()}
 			</Typography>
 			<Typography level='body3'>session id: {session.id}</Typography>
 			<Typography level='body3'>command: {session.command}</Typography>
-			<Typography level='body3'>
-				start time: {formatSeconds(session.start_time)}
+			<Typography
+				level='body3'
+				sx={{
+					ml: 'auto',
+				}}
+			>
+				{formatSeconds(session.start_time)}-{formatSeconds(session.finish_time)}
 			</Typography>
-			<Typography level='body3'>
-				finish time: {formatSeconds(session.finish_time)}
-			</Typography>
-			<Typography level='body3'>success: {session.success}</Typography>
-			<Typography level='body3'>running: {session.running}</Typography>
-		</Card>
+
+			{/* <Typography level='body3'>success: {String(session.success)}</Typography>
+			<Typography level='body3'>running: {session.running}</Typography> */}
+		</Sheet>
 	)
 })
 
@@ -79,6 +87,7 @@ export const SessionList: FC = observer(() => {
 					flexGrow: 1,
 					p: 2,
 					display: 'flex',
+
 					flexDirection: 'column',
 					overflow: 'auto',
 					gap: 2,
@@ -91,7 +100,7 @@ export const SessionList: FC = observer(() => {
 						setFilter(ev.target.value)
 					}}
 				/>
-				<Box display={'flex'} gap={1}>
+				<Box display={'flex'} gap={1} alignItems='center'>
 					<Checkbox
 						label='runing'
 						checked={filterRunning}
@@ -106,6 +115,9 @@ export const SessionList: FC = observer(() => {
 							setFilterFailed(ev.target.checked)
 						}}
 					/>
+					<Input type='datetime-local' sx={{ ml: 'auto' }} />
+					-
+					<Input type='datetime-local' />
 				</Box>
 				<Divider />
 				<Sheet sx={{ overflow: 'auto', flexGrow: 1 }}>
@@ -133,6 +145,7 @@ export const SessionList: FC = observer(() => {
 							})}
 					</List>
 				</Sheet>
+				<Typography level='body4'>total : {sessionStore.allNums}</Typography>
 			</Sheet>
 		</Box>
 	)

@@ -9,6 +9,7 @@ import {
 	IconButton,
 	Tooltip,
 	ColorPaletteProp,
+	Button,
 } from '@mui/joy'
 import { SessionOutputInter } from 'Interface'
 import { observer } from 'mobx-react-lite'
@@ -21,6 +22,9 @@ import { websocketBaseUrl } from 'utils/http'
 
 import ArrowDownwardIcon from '@mui/icons-material/ArrowDownward'
 import ClearIcon from '@mui/icons-material/Clear'
+import LinkIcon from '@mui/icons-material/Link'
+import LinkOffIcon from '@mui/icons-material/LinkOff'
+import { toast } from 'components/Toast'
 
 export const SessionListItem: FC = observer(() => {
 	const [output, setOutput] = useState<SessionOutputInter>()
@@ -45,16 +49,21 @@ export const SessionListItem: FC = observer(() => {
 		)
 	}, [session, sessionid])
 
-	useEffect(() => {
-		if (!selectSession.session!.running) return
+	const [ws, setWs] = useState<WebSocket>()
+	const [wsLoading, setWsLoading] = useState(false)
 
-		const ws = new WebSocket(
+	const connectToLiveOutput = () => {
+		if (ws || !session.running) {
+			return
+		}
+		setWsLoading(true)
+		const nws = new WebSocket(
 			`${websocketBaseUrl}/task/session/communicate?session_id=${sessionid}`
 		)
-		ws.onmessage = (ev) => {
+		nws.onmessage = (ev) => {
 			const tars = String(ev.data)
 			if (tars === `task-${sessionid} over`) {
-				ws.close()
+				nws.close()
 				return
 			}
 			setOutput((prevOutput) => {
@@ -65,17 +74,31 @@ export const SessionListItem: FC = observer(() => {
 				}
 			})
 		}
-		ws.onclose = (ev) => {
-			ws.close()
+		nws.onclose = (ev) => {
+			nws.close()
 		}
-		ws.onopen = (ev) => {
+		nws.onopen = (ev) => {
+			setWs(nws)
 			setTimeout(() => {
-				ws.send('1')
+				nws.send('1')
 			}, 1000)
+			setWsLoading(false)
 		}
+		nws.onerror = (ev) => {
+			console.log(ev)
+			toast.error('connect to live output failed', ev.type)
+			setWsLoading(false)
+		}
+	}
 
+	const disconnectToLiveOutput = () => {
+		ws?.close()
+		setWs(undefined)
+	}
+
+	useEffect(() => {
 		return () => {
-			ws.close()
+			ws?.close()
 		}
 	}, [sessionid, session.running])
 	const textAreaRef = React.useRef<HTMLDivElement>(null)
@@ -167,6 +190,30 @@ export const SessionListItem: FC = observer(() => {
 								<ClearIcon />
 							</Tooltip>
 						</IconButton>
+						{!session!.running ? null : (
+							<Button
+								loading={wsLoading}
+								variant='soft'
+								color='info'
+								onClick={() => {
+									if (ws) {
+										disconnectToLiveOutput()
+									} else {
+										connectToLiveOutput()
+									}
+								}}
+							>
+								{ws ? (
+									<Tooltip title='Disconnect to live output'>
+										<LinkOffIcon />
+									</Tooltip>
+								) : (
+									<Tooltip title='Connect to live output'>
+										<LinkIcon />
+									</Tooltip>
+								)}
+							</Button>
+						)}
 						<Typography level='body3' sx={{ ml: 'auto' }}>
 							{output?.output.length} character(s)
 						</Typography>

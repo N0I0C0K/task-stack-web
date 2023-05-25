@@ -68,6 +68,9 @@ export interface AlertItemInter {
 export const toast = observable<{
 	alertItems: AlertItemInter[]
 	alert: (alertItem: AlertItemInter) => void
+	error: (title: string, subtitle: string) => void
+	info: (title: string, subtitle: string) => void
+	success: (title: string, subtitle: string) => void
 	pop: (alertKey: string) => void
 }>({
 	alertItems: [],
@@ -77,6 +80,15 @@ export const toast = observable<{
 		setInterval(() => {
 			toast.pop(alertItem.key!)
 		}, 5 * 1000)
+	},
+	error(title, subtitle) {
+		this.alert({ title, subtitle, color: 'danger' })
+	},
+	info(title, subtitle) {
+		this.alert({ title, subtitle, color: 'info' })
+	},
+	success(title, subtitle) {
+		this.alert({ title, subtitle, color: 'success' })
 	},
 	pop(alertKey) {
 		const idx = this.alertItems.findIndex((val) => val.key === alertKey)
