@@ -10,6 +10,8 @@ import {
 	Tooltip,
 	ColorPaletteProp,
 	Button,
+	Chip,
+	Divider,
 } from '@mui/joy'
 import { SessionOutputInter } from 'Interface'
 import { observer } from 'mobx-react-lite'
@@ -25,6 +27,12 @@ import ClearIcon from '@mui/icons-material/Clear'
 import LinkIcon from '@mui/icons-material/Link'
 import LinkOffIcon from '@mui/icons-material/LinkOff'
 import { toast } from 'components/Toast'
+
+import DoneIcon from '@mui/icons-material/Done'
+import CloseIcon from '@mui/icons-material/Close'
+
+import AddIcon from '@mui/icons-material/Add'
+import RemoveIcon from '@mui/icons-material/Remove'
 
 export const SessionListItem: FC = observer(() => {
 	const [output, setOutput] = useState<SessionOutputInter>()
@@ -141,7 +149,15 @@ export const SessionListItem: FC = observer(() => {
 								sx={{ maxHeight: '20px' }}
 							/>
 						</>
-					) : null
+					) : (
+						<Chip
+							variant='soft'
+							color={color}
+							startDecorator={session.success ? <DoneIcon /> : <CloseIcon />}
+						>
+							{session.success ? 'success' : 'failed'}
+						</Chip>
+					)
 				}
 			>
 				{formatSeconds(session.start_time)}
@@ -149,7 +165,7 @@ export const SessionListItem: FC = observer(() => {
 				{formatSeconds(session.finish_time)}
 			</Typography>
 			<Stack direction={'column'}>
-				<Typography level='body3'>session id: {session.id}</Typography>
+				<Typography level='body3'>{session.id}</Typography>
 				<FormControl>
 					<FormLabel>Command</FormLabel>
 					<Textarea value={session.command} variant='soft' color={color} />
@@ -163,7 +179,24 @@ export const SessionListItem: FC = observer(() => {
 				variant='soft'
 				maxRows={50}
 				endDecorator={
-					<Box display={'flex'} textAlign={'center'} flex={'auto'} gap={1}>
+					<Box
+						display={'flex'}
+						textAlign={'center'}
+						flex={'auto'}
+						gap={1}
+						alignItems={'center'}
+					>
+						<IconButton variant='outlined' color='neutral'>
+							<Tooltip title='zomm in font'>
+								<AddIcon />
+							</Tooltip>
+						</IconButton>
+						<IconButton variant='outlined' color='neutral'>
+							<Tooltip title='zomm out font'>
+								<RemoveIcon />
+							</Tooltip>
+						</IconButton>
+						<Divider orientation='vertical' />
 						<IconButton
 							onClick={() => {
 								scrollBottom()
@@ -190,6 +223,7 @@ export const SessionListItem: FC = observer(() => {
 								<ClearIcon />
 							</Tooltip>
 						</IconButton>
+
 						{!session!.running ? null : (
 							<Button
 								loading={wsLoading}
@@ -220,9 +254,7 @@ export const SessionListItem: FC = observer(() => {
 					</Box>
 				}
 				ref={textAreaRef}
-				sx={{
-					fontWeight: 350,
-				}}
+				sx={{}}
 			/>
 		</Box>
 	)

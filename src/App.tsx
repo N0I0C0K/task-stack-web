@@ -35,12 +35,18 @@ import { TestDataChangeToggle } from 'components/TestDataChangeToggle'
 import { EventListenrToggle } from 'components/EventListenerToggle'
 import { nanoid } from 'nanoid'
 import { CustomAvatar } from 'components/CustomAvatar'
+import HomeIcon from '@mui/icons-material/Home'
 
 const tabs: {
 	key: string
 	icon: React.ReactElement
 	tooltip: string
 }[] = [
+	{
+		key: '/home',
+		icon: <HomeIcon />,
+		tooltip: 'home panel',
+	},
 	{
 		key: '/task',
 		icon: <FormatListBulletedIcon />,

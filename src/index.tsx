@@ -6,6 +6,7 @@ import App from './App'
 import { createBrowserRouter, RouterProvider } from 'react-router-dom'
 import { TaskList } from 'pages/task-list/TaskList'
 import { SessionList } from 'pages/session-list/SessionList'
+import { HomePanel } from 'pages/home/home'
 
 const router = createBrowserRouter([
 	{
@@ -13,8 +14,8 @@ const router = createBrowserRouter([
 		element: <App />,
 		children: [
 			{
-				path: '',
-				element: <TaskList />,
+				path: 'home',
+				element: <HomePanel />,
 			},
 			{
 				path: 'task',
@@ -27,6 +28,10 @@ const router = createBrowserRouter([
 			{
 				path: 'setting',
 				element: <p>setting</p>,
+			},
+			{
+				path: '*',
+				element: <HomePanel />,
 			},
 		],
 	},
