@@ -2,6 +2,8 @@ import { toast } from 'components/Toast'
 import { action } from 'mobx'
 import { selectTask, taskStore } from 'store/taskstore'
 import { websocketBaseUrl, getToken } from './http'
+import { SystemInfoProps } from 'Interface'
+import { userStore } from 'store/userStore'
 
 type Callback<T> = (p: T) => void
 
@@ -27,13 +29,19 @@ class Event<T> {
 	}
 }
 
-interface MessageType {
+interface TaskEventType {
 	task_id: string
 	session_id: string
 }
 
-const taskStartEvent = new Event<MessageType>()
-const taskFinishEvent = new Event<MessageType>()
+interface MessageType {
+	event: 'task_start' | 'task_finish' | 'system_info_update'
+	data: TaskEventType | SystemInfoProps
+}
+
+const taskStartEvent = new Event<TaskEventType>()
+const taskFinishEvent = new Event<TaskEventType>()
+const systemInfoUpdateEvent = new Event<SystemInfoProps>()
 
 export var connectState = false
 
@@ -42,11 +50,13 @@ var websocket: WebSocket | undefined = undefined
 export const initEventListen = () => {
 	console.log('init EventListen')
 	websocket = new WebSocket(
-		`${websocketBaseUrl}/task/listener?token=${getToken()}`
+		`${websocketBaseUrl}/user/event/listen?token=${getToken()}`
 	)
 
 	taskFinishEvent.clear()
 	taskStartEvent.clear()
+	systemInfoUpdateEvent.clear()
+
 	websocket.onclose = () => {
 		connectState = false
 	}
@@ -54,15 +64,16 @@ export const initEventListen = () => {
 		connectState = true
 	}
 	websocket.onmessage = (data) => {
-		const t = JSON.parse(String(data.data)) as MessageType & {
-			event: 'task_start' | 'task_finish'
-		}
+		const t = JSON.parse(String(data.data)) as MessageType
 		switch (t.event) {
 			case 'task_finish':
-				taskFinishEvent.invoke(t)
+				taskFinishEvent.invoke(t.data as TaskEventType)
 				break
 			case 'task_start':
-				taskStartEvent.invoke(t)
+				taskStartEvent.invoke(t.data as TaskEventType)
+				break
+			case 'system_info_update':
+				systemInfoUpdateEvent.invoke(t.data as SystemInfoProps)
 				break
 		}
 	}
@@ -100,6 +111,13 @@ export const initEventListen = () => {
 			}
 		})
 	)
+
+	systemInfoUpdateEvent.add(
+		action((p) => {
+			userStore.systemInfo = p
+		})
+	)
+
 	return true
 }
 
@@ -109,6 +127,7 @@ export const clearEventListener = () => {
 	websocket?.close()
 	taskFinishEvent.clear()
 	taskStartEvent.clear()
+	systemInfoUpdateEvent.clear()
 	connectState = false
 	return true
 }

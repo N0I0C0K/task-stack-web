@@ -10,3 +10,16 @@ export function formatSeconds(seconds: number) {
 		.toString()
 		.padStart(2, '0')}`
 }
+
+export function countArrayPredicate<T>(
+	arr: T[],
+	predicate: (item: T) => boolean
+) {
+	let count = 0
+	for (const item of arr) {
+		if (predicate(item)) {
+			count++
+		}
+	}
+	return count
+}

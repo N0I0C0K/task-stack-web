@@ -42,7 +42,7 @@ const SessionItem: FC<{
 					session.running ? undefined : session.success ? 'success' : 'danger'
 				}
 			>
-				{session.task_id.toUpperCase()}
+				{session.task_id?.toUpperCase()}
 			</Typography>
 			<Typography level='body3'>session id: {session.id}</Typography>
 			<Typography level='body3'>command: {session.command}</Typography>

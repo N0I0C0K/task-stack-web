@@ -1,6 +1,6 @@
 import { FC, useState, useEffect } from 'react'
 import { Sheet, Modal, Typography, Input, Button } from '@mui/joy'
-import { http, setToken } from '../utils/http'
+import { http, setHasLogin, setToken } from '../utils/http'
 import { taskStore } from 'store/taskstore'
 import { initEventListen } from 'utils/eventlisten'
 import { isUseTestData } from 'utils/datafetch'
@@ -14,8 +14,10 @@ const Login: FC = () => {
 			.get('/auth/beat')
 			.then(({ status }) => {
 				if (status !== 200) {
+					setHasLogin(false)
 					setOpen(true)
 				} else {
+					setHasLogin(true)
 					setOpen(false)
 				}
 			})
@@ -75,6 +77,7 @@ const Login: FC = () => {
 									if (data.code === 200) {
 										setToken(data.token)
 										setOpen(false)
+										setHasLogin(true)
 										// initEventListen()
 										taskStore.refresh()
 									}

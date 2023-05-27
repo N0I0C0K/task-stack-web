@@ -127,6 +127,7 @@ export const TaskList: FC = observer(() => {
 									})
 									.map((val) => {
 										const selected = selectTask.task?.id === val.id
+										const contextSelected = contextTarget?.id === val.id
 										return (
 											<ListItem key={val.id}>
 												<ListItemButton
@@ -137,7 +138,13 @@ export const TaskList: FC = observer(() => {
 													sx={{
 														borderRadius: 'sm',
 													}}
-													variant={selected ? 'soft' : undefined}
+													variant={
+														selected
+															? 'soft'
+															: contextSelected
+															? 'outlined'
+															: undefined
+													}
 													color={selected ? 'neutral' : undefined}
 													onContextMenu={(ev) => {
 														ev.preventDefault()

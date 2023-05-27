@@ -34,3 +34,17 @@ export interface SessionOutputInter {
 	output: string
 	finish: boolean
 }
+
+export interface AllSessionInter {
+	sessions: SessionInter[]
+	all_nums: number
+}
+
+export interface SystemInfoProps {
+	cpu_usage_percent: number
+	memory_usage_percent: number
+	memory_usage: number
+	memory_total: number
+	network_send_speed: number
+	network_recv_speed: number
+}
