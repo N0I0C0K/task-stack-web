@@ -38,6 +38,7 @@ import { CustomAvatar } from 'components/CustomAvatar'
 import HomeIcon from '@mui/icons-material/Home'
 
 const tabs: {
+	id?: string
 	key: string
 	icon: React.ReactElement
 	tooltip: string
@@ -89,6 +90,7 @@ const FirstSidbar: FC = () => {
 				transition: 'transform 0.4s',
 				// zIndex: -1,
 				height: '100dvh',
+				//width: 150,
 				width: 'var(--FirstSidebar-width)',
 				top: 0,
 				p: 1.5,
@@ -113,7 +115,7 @@ const FirstSidbar: FC = () => {
 				{tabs.map((val) => {
 					const selected = val.key === curTab
 					return (
-						<ListItem key={nanoid()}>
+						<ListItem key={val.id ?? (val.id = nanoid())}>
 							<ListItemButton
 								selected={selected}
 								variant={selected ? 'solid' : undefined}

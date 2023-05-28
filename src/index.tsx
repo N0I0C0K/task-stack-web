@@ -7,8 +7,13 @@ import { createBrowserRouter, RouterProvider } from 'react-router-dom'
 import { TaskList } from 'pages/task-list/TaskList'
 import { SessionList } from 'pages/session-list/SessionList'
 import { HomePanel } from 'pages/home/home'
+import { OutSession } from 'pages/out-session'
 
 const router = createBrowserRouter([
+	{
+		path: '/external/session/:sessionid',
+		element: <OutSession />,
+	},
 	{
 		path: '/',
 		element: <App />,

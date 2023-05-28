@@ -15,6 +15,7 @@ export const getAFakeTask = (): TaskInter => {
 		active: faker.datatype.boolean(),
 		create_time: faker.date.past().getTime() / 1000,
 		last_exec_time: faker.date.past().getTime() / 1000,
+		command_input: faker.lorem.sentence(),
 		crontab_exp: faker.datatype.boolean()
 			? faker.date.future().toISOString()
 			: undefined,
@@ -29,6 +30,7 @@ export const getAFakeSession = (): SessionInter => {
 		finish_time: faker.date.past().getTime() / 1000,
 		task_id: faker.random.alphaNumeric(16),
 		command: 'test fake command',
+		command_input: 'test fake command input',
 		success: faker.datatype.boolean(),
 		running: faker.datatype.boolean(),
 	}

@@ -15,6 +15,7 @@ import {
 	getTestSessionList,
 	getTestAlllSession,
 	getTestSystemInfo,
+	getAFakeSession,
 } from './fakeDataFetch'
 
 var useTestData = false
@@ -120,6 +121,20 @@ const getRealAllSessionList = async (
 		params: { start, num },
 	})
 	return res.data
+}
+
+export async function getSessionInfo(sessionid: string) {
+	return useTestData ? getAFakeSession() : getRealSessionInfo(sessionid)
+}
+
+async function getRealSessionInfo(sessionid: string) {
+	const res = await http.get<HttpBase & { session: SessionInter }>(
+		'/task/session/info',
+		{
+			params: { session_id: sessionid },
+		}
+	)
+	return res.data.session
 }
 
 export const createTask = async (form: CreateTaskInter): Promise<TaskInter> => {
