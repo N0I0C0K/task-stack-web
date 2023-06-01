@@ -202,6 +202,7 @@ export const TaskList: FC = observer(() => {
 					top={pos[1]}
 					onClose={() => {
 						setMenuOpen(false)
+						setContextTarget(undefined)
 					}}
 					menuItems={
 						<>

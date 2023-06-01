@@ -12,6 +12,7 @@ import {
 	Button,
 	Chip,
 	Divider,
+	Input,
 } from '@mui/joy'
 import { SessionOutputInter } from 'Interface'
 import { observer } from 'mobx-react-lite'
@@ -110,6 +111,17 @@ export const SessionListItem: FC = observer(() => {
 		}
 	}, [sessionid, session.running])
 	const textAreaRef = React.useRef<HTMLDivElement>(null)
+
+	const [input, setInput] = useState('')
+
+	const sendInput = () => {
+		if (!input) {
+			return
+		}
+		ws?.send(JSON.stringify({ input: input }))
+		setInput('')
+	}
+
 	const scrollBottom = () => {
 		const textarea = textAreaRef.current
 			?.getElementsByTagName('textarea')
@@ -170,6 +182,16 @@ export const SessionListItem: FC = observer(() => {
 					<FormLabel>Command</FormLabel>
 					<Textarea value={session.command} variant='soft' color={color} />
 				</FormControl>
+				{session.command_input && (
+					<FormControl>
+						<FormLabel>Command Input</FormLabel>
+						<Textarea
+							value={session.command_input}
+							variant='soft'
+							color={color}
+						/>
+					</FormControl>
+				)}
 			</Stack>
 
 			<Typography level='body1'>Output:</Typography>
@@ -256,6 +278,24 @@ export const SessionListItem: FC = observer(() => {
 				ref={textAreaRef}
 				sx={{}}
 			/>
+			{ws === undefined ? null : (
+				<Input
+					value={input}
+					onChange={(e) => {
+						setInput(e.target.value)
+					}}
+					placeholder={'place input here, type enter to send'}
+					endDecorator={
+						<Button
+							onClick={() => {
+								sendInput()
+							}}
+						>
+							Send
+						</Button>
+					}
+				/>
+			)}
 		</Box>
 	)
 })

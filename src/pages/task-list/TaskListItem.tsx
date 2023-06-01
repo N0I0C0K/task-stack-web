@@ -17,7 +17,7 @@ import { showConfirm } from 'components/GlobalModal'
 import { toast } from 'components/Toast'
 import { observer } from 'mobx-react-lite'
 import { nanoid } from 'nanoid'
-import { FC, useMemo } from 'react'
+import { FC, useMemo, useState } from 'react'
 import { selectTask, taskStore, selectSession } from 'store/taskstore'
 import { formatSeconds } from 'utils'
 import { SessionListItem } from './SessionItemInfo'
@@ -27,8 +27,10 @@ import CancelIcon from '@mui/icons-material/Cancel'
 import HourglassBottomIcon from '@mui/icons-material/HourglassBottom'
 import DeleteIcon from '@mui/icons-material/Delete'
 import TaskAltIcon from '@mui/icons-material/TaskAlt'
+import { Expanding } from 'components/Expanding'
 
 export const TaskListItem: FC = observer(() => {
+	const [commandExpanded, setCommandExpanded] = useState(false)
 	const task = useMemo(() => {
 		return selectTask.task!
 	}, [])
@@ -49,7 +51,7 @@ export const TaskListItem: FC = observer(() => {
 					last run time: {formatSeconds(selectTask.task!.last_exec_time)}
 				</Typography>
 				<Typography level='body3'>crontab exp: {task.crontab_exp}</Typography>
-				<FormControl>
+				{/* <FormControl>
 					<FormLabel>Command</FormLabel>
 					<Textarea
 						value={selectTask.task!.command}
@@ -57,6 +59,49 @@ export const TaskListItem: FC = observer(() => {
 						color='primary'
 					/>
 				</FormControl>
+				{selectTask.task!.command_input && (
+					<FormControl>
+						<FormLabel>Command Input</FormLabel>
+						<Textarea
+							value={selectTask.task!.command_input}
+							variant='soft'
+							color='primary'
+						/>
+					</FormControl>
+				)} */}
+				<Expanding
+					sx={{
+						my: 2,
+					}}
+					open={commandExpanded}
+					onClose={() => {
+						setCommandExpanded(false)
+					}}
+					onOpen={() => {
+						setCommandExpanded(true)
+					}}
+					title={selectTask.task?.command!}
+					children={
+						<>
+							<FormControl>
+								<FormLabel>Command</FormLabel>
+								<Textarea
+									value={selectTask.task!.command}
+									variant='soft'
+									color='primary'
+								/>
+							</FormControl>
+							<FormControl>
+								<FormLabel>Command Input</FormLabel>
+								<Textarea
+									value={selectTask.task!.command_input}
+									variant='soft'
+									color='primary'
+								/>
+							</FormControl>
+						</>
+					}
+				/>
 				<Divider sx={{ my: 1, mx: 1 }} />
 				<Stack direction={'row'} gap={1}>
 					{!selectTask.task!.running ? (

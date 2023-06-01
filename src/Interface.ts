@@ -5,12 +5,13 @@ export interface TaskInter {
 	id: string
 	name: string
 	command: string
-	command_input: string
+	command_input?: string
 	active: boolean
 	create_time: number
 	last_exec_time: number
 	crontab_exp?: string
 	running?: boolean
+	comment?: string
 }
 
 export interface CreateTaskInter {
@@ -26,7 +27,7 @@ export interface SessionInter {
 	finish_time: number
 	task_id: string
 	command: string
-	command_input: string
+	command_input?: string
 	success: boolean
 	running: boolean
 }
