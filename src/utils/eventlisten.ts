@@ -1,9 +1,9 @@
 import { toast } from 'components/Toast'
-import { action } from 'mobx'
 import { selectTask, taskStore } from 'store/taskstore'
 import { websocketBaseUrl, getToken } from './http'
 import { SystemInfoProps } from 'Interface'
 import { userStore } from 'store/userStore'
+import { observable, action } from 'mobx'
 
 type Callback<T> = (p: T) => void
 
@@ -43,7 +43,17 @@ const taskStartEvent = new Event<TaskEventType>()
 const taskFinishEvent = new Event<TaskEventType>()
 const systemInfoUpdateEvent = new Event<SystemInfoProps>()
 
-export var connectState = false
+export const EventListenState = observable<{
+	connectState: boolean
+	setConnectState: (state: boolean) => void
+}>({
+	connectState: false,
+	setConnectState(state) {
+		this.connectState = state
+	},
+})
+
+//export var connectState = false
 
 var websocket: WebSocket | undefined = undefined
 
@@ -58,10 +68,10 @@ export const initEventListen = () => {
 	systemInfoUpdateEvent.clear()
 
 	websocket.onclose = () => {
-		connectState = false
+		EventListenState.setConnectState(false)
 	}
 	websocket.onopen = () => {
-		connectState = true
+		EventListenState.setConnectState(true)
 	}
 	websocket.onmessage = (data) => {
 		const t = JSON.parse(String(data.data)) as MessageType
@@ -128,6 +138,6 @@ export const clearEventListener = () => {
 	taskFinishEvent.clear()
 	taskStartEvent.clear()
 	systemInfoUpdateEvent.clear()
-	connectState = false
+	EventListenState.setConnectState(false)
 	return true
 }

@@ -34,6 +34,7 @@ export interface SessionInter {
 
 export interface SessionOutputInter {
 	session_id: string
+	input?: string
 	output: string
 	finish: boolean
 }

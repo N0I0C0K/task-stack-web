@@ -78,7 +78,7 @@ const Login: FC = () => {
 										setToken(data.token)
 										setOpen(false)
 										setHasLogin(true)
-										// initEventListen()
+										initEventListen()
 										taskStore.refresh()
 									}
 								})

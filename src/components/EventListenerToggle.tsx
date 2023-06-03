@@ -1,16 +1,15 @@
 import { FC, useState } from 'react'
 import {
 	clearEventListener,
-	connectState,
+	EventListenState,
 	initEventListen,
 } from 'utils/eventlisten'
 import LinkIcon from '@mui/icons-material/Link'
 import LinkOffIcon from '@mui/icons-material/LinkOff'
-import { Button } from '@mui/joy'
+import { Button, Tooltip } from '@mui/joy'
+import { observer } from 'mobx-react-lite'
 
-export const EventListenrToggle: FC = () => {
-	const [link, setLink] = useState(connectState)
-
+export const EventListenrToggle: FC = observer(() => {
 	return (
 		<Button
 			variant='outlined'
@@ -18,14 +17,22 @@ export const EventListenrToggle: FC = () => {
 				width: '40px',
 			}}
 			onClick={() => {
-				if (link) {
-					if (clearEventListener()) setLink(false)
+				if (EventListenState.connectState) {
+					clearEventListener()
 				} else {
-					if (initEventListen()) setLink(true)
+					initEventListen()
 				}
 			}}
 		>
-			{link ? <LinkIcon /> : <LinkOffIcon />}
+			<Tooltip
+				title={
+					EventListenState.connectState
+						? 'click to disconnect'
+						: 'click to connect'
+				}
+			>
+				{!EventListenState.connectState ? <LinkIcon /> : <LinkOffIcon />}
+			</Tooltip>
 		</Button>
 	)
-}
+})
