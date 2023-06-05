@@ -41,6 +41,7 @@ export const TaskList: FC = observer(() => {
 	const [pos, setPos] = useState([0, 0])
 
 	const [onlyRuning, setOnlyrunning] = useState(false)
+	const [onlyFail, setOnlyFail] = useState(false)
 
 	return (
 		<Box
@@ -106,8 +107,22 @@ export const TaskList: FC = observer(() => {
 							find {taskStore.tasks.length} tasks
 						</Typography>
 						<Stack direction={'row'} gap={1} sx={{ m: 1 }}>
-							<Checkbox label='Run' size='sm' />
-							<Checkbox label='Fail' size='sm' />
+							<Checkbox
+								label='running'
+								size='sm'
+								checked={onlyRuning}
+								onChange={(ev) => {
+									setOnlyrunning(ev.target.checked)
+								}}
+							/>
+							<Checkbox
+								label='fail'
+								size='sm'
+								checked={onlyFail}
+								onChange={(ev) => {
+									setOnlyFail(ev.target.checked)
+								}}
+							/>
 						</Stack>
 						<Sheet
 							sx={{
@@ -124,6 +139,15 @@ export const TaskList: FC = observer(() => {
 											val.name.includes(filterTxt) ||
 											val.command.includes(filterTxt)
 										)
+									})
+									.filter((val) => {
+										if (onlyRuning) {
+											return val.running
+										}
+										if (onlyFail) {
+											return false
+										}
+										return true
 									})
 									.map((val) => {
 										const selected = selectTask.task?.id === val.id

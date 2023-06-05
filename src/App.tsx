@@ -20,6 +20,7 @@ import {
 	TabList,
 	Tabs,
 	Tab,
+	Typography,
 } from '@mui/joy'
 import { StackedLineChart, Person } from '@mui/icons-material'
 import FormatListBulletedIcon from '@mui/icons-material/FormatListBulleted'
@@ -36,6 +37,7 @@ import { EventListenrToggle } from 'components/EventListenerToggle'
 import { nanoid } from 'nanoid'
 import { CustomAvatar } from 'components/CustomAvatar'
 import HomeIcon from '@mui/icons-material/Home'
+import { FloatingDialog } from 'components/FloatingDialog'
 
 const tabs: {
 	id?: string
@@ -159,6 +161,9 @@ function App() {
 				<GlobalModal />
 			</Box>
 			<GlobalToast />
+			<FloatingDialog open={true} title='test1'>
+				<Typography level='h2'>Test Floating Dialog</Typography>
+			</FloatingDialog>
 		</CssVarsProvider>
 	)
 }
