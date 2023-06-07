@@ -17,12 +17,19 @@ import { FC, useState, useRef } from 'react'
 
 // const OutSheetSx: SxProps =
 
-export const FloatingDialog: FC<{
+export interface FloatingDialogProps {
 	open: boolean
 	title: string
 	onClose?: () => void
 	children?: React.ReactNode
-}> = ({ title, open, onClose, children }) => {
+}
+
+export const FloatingDialog: FC<FloatingDialogProps> = ({
+	title,
+	open,
+	onClose,
+	children,
+}) => {
 	const [pos, setPos] = useState<[number, number]>([0, 0])
 	const [offsetPos, setOffsetPos] = useState<[number, number]>([0, 0])
 	const [isDrag, setIsDrag] = useState(false)
