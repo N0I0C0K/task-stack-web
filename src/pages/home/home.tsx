@@ -1,19 +1,19 @@
 import {
 	Box,
+	Button,
 	ColorPaletteProp,
+	IconButton,
 	Sheet,
 	Stack,
-	Tooltip,
 	Typography,
 } from '@mui/joy'
-import { SystemInfoProps } from 'Interface'
 import { observer } from 'mobx-react-lite'
-import { FC, useEffect, useState } from 'react'
+import { FC } from 'react'
 import { taskStore } from 'store/taskstore'
 import { userStore } from 'store/userStore'
 import { countArrayPredicate } from 'utils'
-import { getSystemInfo } from 'utils/datafetch'
-import { getHasLogin } from 'utils/http'
+import OpenInNewIcon from '@mui/icons-material/OpenInNew'
+import { floatingDialogManager } from 'store/floatingDialogManager'
 
 const ResItem: FC<{
 	title: string
@@ -74,7 +74,30 @@ const SystemPanel: FC = observer(() => {
 
 	return (
 		<Box mt={3}>
-			<Typography level='h4'>System Info</Typography>
+			<Typography
+				level='h4'
+				endDecorator={
+					<IconButton
+						color='neutral'
+						variant='plain'
+						onClick={() => {
+							floatingDialogManager.newDialog({
+								title: 'System Info',
+								children: (
+									<>
+										<Typography level='h5'>CPU</Typography>
+									</>
+								),
+								open: true,
+							})
+						}}
+					>
+						<OpenInNewIcon />
+					</IconButton>
+				}
+			>
+				System Info
+			</Typography>
 			<Stack direction={'row'} sx={{ mt: 1 }} gap={3}>
 				<ResItem
 					title={'CPU'}
@@ -146,7 +169,7 @@ const TaskPanel: FC = observer(() => {
 })
 export const HomePanel: FC = () => {
 	return (
-		<Box p={3}>
+		<Box p={3} display={'flex'} flexDirection={'column'}>
 			<Typography level='h2'>Home</Typography>
 			<SystemPanel />
 			<TaskPanel />

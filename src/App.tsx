@@ -38,6 +38,10 @@ import { nanoid } from 'nanoid'
 import { CustomAvatar } from 'components/CustomAvatar'
 import HomeIcon from '@mui/icons-material/Home'
 import { FloatingDialog } from 'components/FloatingDialog'
+import {
+	FloatingDialogProvider,
+	FloatingDialogSidebar,
+} from 'store/floatingDialogManager'
 
 const tabs: {
 	id?: string
@@ -132,6 +136,7 @@ const FirstSidbar: FC = () => {
 					)
 				})}
 			</List>
+			<FloatingDialogSidebar />
 			<Divider />
 			<TestDataChangeToggle />
 			<ModeToggle />
@@ -161,9 +166,10 @@ function App() {
 				<GlobalModal />
 			</Box>
 			<GlobalToast />
-			<FloatingDialog open={true} title='test1'>
+			{/* <FloatingDialog open={true} title='test1'>
 				<Typography level='h2'>Test Floating Dialog</Typography>
-			</FloatingDialog>
+			</FloatingDialog> */}
+			<FloatingDialogProvider />
 		</CssVarsProvider>
 	)
 }

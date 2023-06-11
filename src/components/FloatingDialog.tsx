@@ -22,6 +22,7 @@ export interface FloatingDialogProps {
 	title: string
 	onClose?: () => void
 	children?: React.ReactNode
+	id?: string
 }
 
 export const FloatingDialog: FC<FloatingDialogProps> = ({
@@ -91,7 +92,8 @@ export const FloatingDialog: FC<FloatingDialogProps> = ({
 				>
 					{minimize ? <OpenInFullIcon /> : <CloseFullscreenIcon />}
 				</IconButton>
-				<Typography sx={{ mr: 'auto', ml: 1 }} level='body1'>
+				<span style={{ flexGrow: 1 }} />
+				<Typography sx={{ mx: 1 }} level='body1'>
 					{title}
 				</Typography>
 			</Box>
