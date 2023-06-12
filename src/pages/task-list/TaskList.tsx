@@ -89,7 +89,9 @@ export const TaskList: FC = observer(() => {
 				>
 					<Sheet
 						sx={{
-							width: 'auto',
+							minWidth: '180px',
+							maxWidth: '400px',
+							width: '20%',
 							height: '100%',
 							p: 1,
 							display: 'flex',
